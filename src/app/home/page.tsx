@@ -1,5 +1,7 @@
 import * as React from 'react';
 import { Route, Routes, Link } from 'react-router-dom';
+import { Button, ButtonGroup } from '@chakra-ui/react';
+
 import PageSmash from '../categories/smash/page';
 import logo from '../../logo.svg';
 import '../../App.css';
@@ -19,6 +21,9 @@ function Content() {
 	return (
 		<div>
 			<Link to={'/smash'}>スマブラaa</Link>
+			<Button colorScheme='teal' size='xs'>
+				Button
+			</Button>
 			<img src={logo} className='App-logo' alt='logo' />
 		</div>
 	);
