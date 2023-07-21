@@ -18,7 +18,7 @@ export default function PageHome() {
 function Content() {
 	return (
 		<div>
-			<Link to={'/smash'}>スマブラ</Link>
+			<Link to={'/smash'}>スマブラa</Link>
 			<img src={logo} className='App-logo' alt='logo' />
 		</div>
 	);
