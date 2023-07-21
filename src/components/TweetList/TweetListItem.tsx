@@ -1,5 +1,5 @@
 import React from 'react';
-import { t_dbAuthor, t_dbTweetDataParsed, t_dbTweetScores } from '../TweetComponent/types';
+import { t_dbAuthor, t_dbTweetDataParsed } from '../TweetComponent/types';
 import TweetContainer from '../TweetComponent/TweetContainer';
 
 export default React.memo(

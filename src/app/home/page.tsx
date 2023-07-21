@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { Route, Routes, Link } from 'react-router-dom';
-import { Button, ButtonGroup } from '@chakra-ui/react';
+import { Button } from '@chakra-ui/react';
 
 import PageSmash from '../categories/smash/page';
 import logo from '../../logo.svg';
