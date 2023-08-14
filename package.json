@@ -7,20 +7,35 @@
 		"@chakra-ui/react": "^2.8.0",
 		"@emotion/react": "^11.11.1",
 		"@emotion/styled": "^11.11.0",
+		"@tanstack/react-query": "^4.32.6",
 		"@testing-library/jest-dom": "^5.17.0",
 		"@testing-library/react": "^13.4.0",
 		"@testing-library/user-event": "^13.5.0",
+		"@types/he": "^1.2.0",
 		"@types/jest": "^27.5.2",
 		"@types/node": "^16.18.38",
 		"@types/react": "^18.2.15",
 		"@types/react-dom": "^18.2.7",
+		"date-fns": "^2.30.0",
+		"eslint-plugin-neverthrow": "^1.1.4",
 		"framer-motion": "^10.13.0",
+		"he": "^1.2.0",
+		"neverthrow": "^6.0.0",
+		"rambda": "^8.3.0",
 		"react": "^18.2.0",
 		"react-dom": "^18.2.0",
+		"react-icons": "^4.10.1",
+		"react-infinite-scroller": "^1.2.6",
+		"react-intersection-observer": "^9.5.2",
 		"react-router-dom": "^6.14.2",
 		"react-scripts": "5.0.1",
+		"react-string-replace": "^1.1.1",
+		"react-twitter-widgets": "^1.11.0",
+		"remeda": "^1.24.0",
 		"typescript": "^4.9.5",
-		"web-vitals": "^2.1.4"
+		"use-debounce": "^9.0.4",
+		"web-vitals": "^2.1.4",
+		"yet-another-react-lightbox": "^3.12.0"
 	},
 	"scripts": {
 		"start": "react-scripts start",
@@ -40,5 +55,8 @@
 			"last 1 firefox version",
 			"last 1 safari version"
 		]
+	},
+	"devDependencies": {
+		"@types/react-infinite-scroller": "^1.2.3"
 	}
 }

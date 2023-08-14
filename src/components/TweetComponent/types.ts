@@ -4,7 +4,7 @@ export type t_dbTweetData = {
 	//投稿者のアカウントID
 	author_id: string;
 	text: string;
-	created_at: number;
+	created_at: string;
 	//RT数
 	retweets: number;
 	likes: number;
@@ -19,8 +19,8 @@ export type t_dbTweetDataOthersObj = {
 	replied_tweet_id?: string;
 	quoted_tweet_id?: string;
 	urls?: t_urls[];
-	cardLink?: t_cardLink;
-	mentions?: t_mentions[];
+	card_link?: t_cardLink;
+	//mentions?: t_mentions[];
 	medias?: (t_mediaPhoto | t_mediaVideo)[];
 	polls?: t_poll[];
 };
@@ -36,6 +36,7 @@ export type t_urls = {
 };
 export type t_cardLink = {
 	url: string;
+	domain: string;
 	photo_url: string;
 	photo_height: number;
 	photo_width: number;
@@ -80,3 +81,8 @@ export type t_dbTweetScores = {
 	//アプリが付けたスコア
 	score: number;
 };
+
+export type t_onImageGallery = (
+	data: { type: 'image' | 'video'; src: string; video_poster_url?: string }[],
+	index: number,
+) => any;

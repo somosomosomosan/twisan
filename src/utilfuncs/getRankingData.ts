@@ -6,6 +6,9 @@ export type t_dataRanking = { scores: t_dbTweetScores[]; tweets: t_dbTweetDataPa
 export async function getRankingData(catName: string): Promise<t_dataRanking> {
 	const filePath = `${PATH_RANKING_DATA}/${catName}/mock.json`;
 	//fetch() は Promise を返す（返り値を変数に代入する場合）
-	const res = await fetch(filePath);
-	return res.json() as Promise<t_dataRanking>;
+	const response = await fetch(filePath);
+	if (!response.ok) {
+		throw new Error('????????');
+	}
+	return response.json() as Promise<t_dataRanking>;
 }
