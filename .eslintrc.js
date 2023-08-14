@@ -18,4 +18,7 @@ module.exports = {
 	ignorePatterns: [
 		'/build/', // ビルド出力
 	],
+	rules: {
+		'no-unused-vars': 'off',
+	},
 };
