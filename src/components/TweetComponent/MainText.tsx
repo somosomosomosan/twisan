@@ -86,6 +86,8 @@ function addUrl(text: string | ReactNode[], urls: t_urls[]): string | ReactNode[
 				key={match + randomNum()}
 				href={currentValue.expanded_url}
 				css={styles.textEntities}
+				target='_blank'
+				rel='noreferrer'
 				onClick={(event) => {
 					//オプションが開くのを防ぐ
 					event.stopPropagation();

@@ -17,6 +17,7 @@ export type t_dbTweetDataParsed = Omit<t_dbTweetData, 'others'> & {
 };
 export type t_dbTweetDataOthersObj = {
 	replied_tweet_id?: string;
+	conversation_id?: string;
 	quoted_tweet_id?: string;
 	urls?: t_urls[];
 	card_link?: t_cardLink;

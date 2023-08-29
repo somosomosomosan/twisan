@@ -1,4 +1,4 @@
-import { Box, Modal, ModalBody, ModalContent, ModalOverlay, useDisclosure, useToast } from '@chakra-ui/react';
+import { Box, Button, Modal, ModalBody, ModalContent, ModalOverlay, useDisclosure, useToast } from '@chakra-ui/react';
 import { differenceInCalendarDays } from 'date-fns';
 import * as Rb from 'rambda';
 import { useCallback, useRef, useState } from 'react';
@@ -84,20 +84,11 @@ export default function TweetComponentList(
 	}, []);
 	//InfiniteScrollの次のページを読み込む
 	const call_loadNextPage = useCallback(() => {
-		console.log('load more');
 		if (ref_listPageIndex.current >= props.chunkedScores.length) {
 			set_hasMoreListScores(false);
 			return;
 		}
-		set_listScores((e) => {
-			console.log({
-				add: props.chunkedScores[ref_listPageIndex.current],
-				state_listScores_prev: e,
-				ref_listPageIndex: ref_listPageIndex.current,
-				chunkedscore: props.chunkedScores,
-			});
-			return [...e, ...props.chunkedScores[ref_listPageIndex.current]];
-		});
+		set_listScores((e) => [...e, ...props.chunkedScores[ref_listPageIndex.current]]);
 		ref_listPageIndex.current = ref_listPageIndex.current + 1;
 	}, []);
 
@@ -191,7 +182,7 @@ export default function TweetComponentList(
 			<InfiniteScroll
 				loadMore={call_loadNextPage} //項目を読み込む際に処理するコールバック関数
 				hasMore={state_hasMoreListScores} //読み込みを行うかどうかの判定
-				loader={loader} //読み込み最中に表示する項目
+				loader={<LoadingComponent onLoad={call_loadNextPage} />} //読み込み最中に表示する項目
 				initialLoad={false}
 				threshold={500}
 			>
@@ -230,7 +221,20 @@ export default function TweetComponentList(
 	);
 }
 
-const loader = <div key='loader'>Loading ...</div>;
+/**
+ * ページを開いてすぐに既読を非表示にすると自動では次ページが読み込まれない
+	既読を非表示にしてリストの高さが画面より小さくなるとそうなる模様
+	なので次ページ読み込みボタンが必要である
+ * @param props 
+ * @returns 
+ */
+const LoadingComponent = (props: { onLoad: () => void }) => {
+	return (
+		<Button key='loader' colorScheme='teal' onClick={props.onLoad} marginTop={4} marginBottom={4}>
+			次のページ
+		</Button>
+	);
+};
 
 function TweetOptionModal(
 	props: {

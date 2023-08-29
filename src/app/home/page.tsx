@@ -1,13 +1,10 @@
-import * as React from 'react';
-import { Route, Routes, Link } from 'react-router-dom';
-import { Button } from '@chakra-ui/react';
+import { Link, Route, Routes } from 'react-router-dom';
 
-import PageSmash from '../categories/smash/page';
-import logo from '../../logo.svg';
 import '../../App.css';
+import PageSmash from '../categories/smash/page';
 
 export default function PageHome() {
-	console.log({ PUBLIC_URL: process.env.PUBLIC_URL });
+	//console.log({ PUBLIC_URL: process.env.PUBLIC_URL });
 	return (
 		<div className='App'>
 			<Routes>
@@ -20,11 +17,7 @@ export default function PageHome() {
 function Content() {
 	return (
 		<div>
-			<Link to={'/smash'}>スマブラaa</Link>
-			<Button colorScheme='teal' size='xs'>
-				Button
-			</Button>
-			<img src={logo} className='App-logo' alt='logo' />
+			<Link to={'/smash'}>スマブラ</Link>
 		</div>
 	);
 }

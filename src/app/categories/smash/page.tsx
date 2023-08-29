@@ -1,10 +1,15 @@
 import {
 	Box,
 	Button,
+	Card,
+	CardBody,
+	Center,
 	Container,
 	Flex,
 	Heading,
 	Hide,
+	Link,
+	ListItem,
 	Menu,
 	MenuButton,
 	MenuItem,
@@ -12,24 +17,25 @@ import {
 	Modal,
 	ModalBody,
 	ModalContent,
+	ModalHeader,
 	ModalOverlay,
 	Stack,
 	Text,
+	UnorderedList,
 	VStack,
 	useDisclosure,
 } from '@chakra-ui/react';
 import { useQuery } from '@tanstack/react-query';
+import { format } from 'date-fns';
 import * as Rb from 'rambda';
 import { Suspense, useState } from 'react';
 import { FaCheck, FaChevronDown } from 'react-icons/fa';
-import { PiGearFill } from 'react-icons/pi';
-import { Link } from 'react-router-dom';
-import { COLOR_BORDER } from '../../../components/TweetComponent/consts';
+import { MdOutlineTipsAndUpdates } from 'react-icons/md';
+import { COLOR_BORDER, COLOR_SUBTEXT } from '../../../components/TweetComponent/consts';
 import { t_dbAuthor, t_dbTweetDataParsed, t_dbTweetScores } from '../../../components/TweetComponent/types';
 import TweetComponentList from '../../../components/TweetList/TweetComponentList';
 import { t_tweetViewStyleMode } from '../../../components/TweetList/TweetListItem';
 import { t_blockedAccount } from '../../../components/TweetList/types';
-import DividedList from '../../../components/utilCompos/DividedList';
 import { READS_SAVE_DAYS } from '../../../consts';
 import { getRankingData } from '../../../utilfuncs/getRankingData';
 import {
@@ -47,8 +53,13 @@ export default function PageSmash() {
 		<div>
 			<Container maxW='100%' centerContent marginTop={4} marginBottom={4}>
 				<VStack spacing={4} align='stretch'>
-					<Heading as='h1' size='lg' noOfLines={1}>
-						Title: スマブラ
+					<Heading
+						as='h1'
+						size='lg'
+						noOfLines={1}
+						fontFamily={`Meiryo, "Helvetica Neue", Arial, "Hiragino Kaku Gothic ProN", "Hiragino Sans", sans-serif`}
+					>
+						●●ランキング: スマブラ
 					</Heading>
 					<Text size='sm'>スマブラアカウントの間で最近話題の投稿</Text>
 				</VStack>
@@ -96,6 +107,7 @@ function LoaderWrapper() {
 			blockedAccounts={blockedAccounts}
 			readTweets={readTweets}
 			today={today}
+			finishedScrapingDate={new Date(data?.finished ?? '')}
 		/>
 	);
 }
@@ -107,12 +119,16 @@ function chunkScore(scores: t_dbTweetScores[], tweetViewStyleMode: t_tweetViewSt
 	return Rb.splitEvery(5, scores);
 }
 
-function Content(props: Omit<t_storagedData, 'chunkedScores'> & { scores: t_dbTweetScores[]; today: Date }) {
+function Content(
+	props: Omit<t_storagedData, 'chunkedScores'> & { scores: t_dbTweetScores[]; today: Date; finishedScrapingDate: Date },
+) {
 	const [state_collapseRead, set_collapseRead] = useState<boolean>(false);
+	/*
 	const [state_tweetViewStyleMode, set_tweetViewStyleMode] = useState<t_tweetViewStyleMode>(props.tweetViewStyleMode);
 	const [state_chunkedScores, set_chunkedScores] = useState<t_dbTweetScores[][]>(
 		chunkScore(props.scores, props.tweetViewStyleMode),
 	);
+	*/
 	/*
 	おそらくinfinite scrollの方でstateを保持し続けてるためここで途中で変更しても変わらない
 	ページ再読み込みさせるしか
@@ -123,31 +139,41 @@ function Content(props: Omit<t_storagedData, 'chunkedScores'> & { scores: t_dbTw
 
 	return (
 		<Box>
-			<Container maxW='100%' centerContent marginBottom={8}>
-				<Hide below='lg'>
-					<OptionsForPc
-						isCollapseRead={state_collapseRead}
-						onChangeCollapseMode={() => set_collapseRead((e) => !e)}
-						tweetViewStyleMode={state_tweetViewStyleMode}
-						onChangeTweetViewStyleMode={(e) => {
-							//set_tweetViewStyleMode(e);
-							saveTweetViewStyleMode(e);
-							window.location.reload();
-						}}
-					/>
-				</Hide>
-				<Hide above='lg'>
-					<OptionsForMobile
-						isCollapseRead={state_collapseRead}
-						onChangeCollapseMode={() => set_collapseRead((e) => !e)}
-						tweetViewStyleMode={state_tweetViewStyleMode}
-						onChangeTweetViewStyleMode={(e) => {
-							//set_tweetViewStyleMode(e);
-							saveTweetViewStyleMode(e);
-							window.location.reload();
-						}}
-					/>
-				</Hide>
+			<Container maxW='100%' centerContent marginBottom={4}>
+				<VStack spacing={4}>
+					<Box>
+						<Text color={COLOR_SUBTEXT}>集計日時: {format(props.finishedScrapingDate, 'HH:mm · yyyy/MM/dd')}</Text>
+						<Text color={COLOR_SUBTEXT} fontSize={'sm'}>
+							1時間～1時間半毎に集計努力
+						</Text>
+					</Box>
+
+					<Hide below='lg'>
+						<OptionsForPc
+							isCollapseRead={state_collapseRead}
+							onChangeCollapseMode={() => set_collapseRead((e) => !e)}
+							tweetViewStyleMode={props.tweetViewStyleMode}
+							onChangeTweetViewStyleMode={(e) => {
+								//set_tweetViewStyleMode(e);
+								saveTweetViewStyleMode(e);
+								window.location.reload();
+							}}
+						/>
+					</Hide>
+					<Hide above='lg'>
+						<TipsForMobile />
+						<OptionsForMobile
+							isCollapseRead={state_collapseRead}
+							onChangeCollapseMode={() => set_collapseRead((e) => !e)}
+							tweetViewStyleMode={props.tweetViewStyleMode}
+							onChangeTweetViewStyleMode={(e) => {
+								//set_tweetViewStyleMode(e);
+								saveTweetViewStyleMode(e);
+								window.location.reload();
+							}}
+						/>
+					</Hide>
+				</VStack>
 			</Container>
 			<Flex maxW='100%' flexDirection={'row'} justifyContent={'center'}>
 				<Box
@@ -160,8 +186,8 @@ function Content(props: Omit<t_storagedData, 'chunkedScores'> & { scores: t_dbTw
 					<Suspense fallback={<div>Loading...</div>}>
 						<TweetComponentList
 							{...props}
-							chunkedScores={state_chunkedScores}
-							tweetViewStyleMode={state_tweetViewStyleMode}
+							chunkedScores={chunkScore(props.scores, props.tweetViewStyleMode)}
+							tweetViewStyleMode={props.tweetViewStyleMode}
 							categoryName={CATEGORY_NAME}
 							collapseRead={state_collapseRead}
 							today={props.today}
@@ -169,12 +195,81 @@ function Content(props: Omit<t_storagedData, 'chunkedScores'> & { scores: t_dbTw
 					</Suspense>
 				</Box>
 				<Hide below='lg'>
-					<Box borderWidth={1} borderColor={'black'} maxW={'312px'} minW={'300px'} alignItems={'start'}>
+					<Box maxW={'312px'} minW={'300px'} alignItems={'start'}>
+						<Box
+						//position={'fixed'} maxW={'312px'} minW={'300px'} //固定化する場合はこれ
+						>
+							<VStack spacing={4}>
+								<TipsForPc />
+								<LinksForPc />
+							</VStack>
+							{/*
 						<Link to={'/'}>ホーム</Link>
 						<Text>AD!</Text>
+						*/}
+						</Box>
 					</Box>
 				</Hide>
 			</Flex>
+		</Box>
+	);
+}
+
+function Tips(props: { isPc: boolean }) {
+	const viewModeGuideText = props.isPc ? '投稿表示設定' : '表示設定';
+	return (
+		<UnorderedList spacing={3}>
+			<ListItem>投稿をクリックするといろいろできます。</ListItem>
+			<ListItem>通信量が気になる方は、「{viewModeGuideText}」→「画像無し」をどうぞ。</ListItem>
+			<ListItem>データ収集精度はこれから徐々に良くなっていきます。</ListItem>
+		</UnorderedList>
+	);
+}
+
+function TipsForPc() {
+	return (
+		<Card textAlign={'left'} marginLeft={'24px'} width={'100%'} variant={'outline'}>
+			<CardBody>
+				<VStack spacing={2}>
+					<Center>
+						<MdOutlineTipsAndUpdates size={32} />
+					</Center>
+					<Tips isPc={true} />
+				</VStack>
+			</CardBody>
+		</Card>
+	);
+}
+
+function LinksForPc() {
+	return (
+		<Card textAlign={'left'} marginLeft={'24px'} width={'100%'} variant={'outline'}>
+			<CardBody>
+				<Link fontSize={12} href={'https://somosomosomosan.github.io/texttoimage/'} isExternal>
+					文章画像化ツール
+				</Link>
+			</CardBody>
+		</Card>
+	);
+}
+
+function TipsForMobile() {
+	const { isOpen, onOpen, onClose } = useDisclosure();
+
+	return (
+		<Box>
+			<Button leftIcon={<MdOutlineTipsAndUpdates />} variant='outline' colorScheme='yellow' size='xs' onClick={onOpen}>
+				Tips
+			</Button>
+			<Modal onClose={onClose} isOpen={isOpen} isCentered>
+				<ModalOverlay />
+				<ModalContent onClick={onClose}>
+					<ModalHeader>Tips</ModalHeader>
+					<ModalBody>
+						<Tips isPc={false} />
+					</ModalBody>
+				</ModalContent>
+			</Modal>
 		</Box>
 	);
 }
@@ -216,9 +311,11 @@ function OptionsForPc(props: {
 				<Button variant='outline' colorScheme='teal' size='lg' onClick={props.onChangeCollapseMode}>
 					{props.isCollapseRead ? '既読を表示' : '既読を非表示'}
 				</Button>
+				{/*
 				<Button variant='outline' colorScheme='teal' size='lg'>
 					非表示アカウント設定
 				</Button>
+				*/}
 			</Stack>
 			<Stack spacing={4} direction='row' justifyContent='center'></Stack>
 		</Flex>
@@ -257,44 +354,13 @@ function OptionsForMobile(props: {
 					埋め込み表示
 				</MenuItem>
 				<MenuItem onClick={props.onChangeCollapseMode}>{props.isCollapseRead ? '既読を表示' : '既読を非表示'}</MenuItem>
+				{/*
 				<MenuItem as='a' href='#'>
 					非表示アカウント設定
 				</MenuItem>
+				*/}
 			</MenuList>
 		</Menu>
-	);
-}
-
-function OptionsForMobile2(props: { isCollapseRead: boolean; onChangeCollapseMode: () => any }) {
-	const { isOpen, onOpen, onClose } = useDisclosure();
-	const items = [
-		{
-			title: 'Link 1',
-			onClick: () => 0,
-		},
-		{
-			title: props.isCollapseRead ? '既読を表示する' : '既読を非表示にする',
-			onClick: props.onChangeCollapseMode,
-		},
-		{
-			title: '非表示アカウント設定',
-			onClick: () => 0,
-		},
-	];
-	return (
-		<Box>
-			<Button variant='outline' colorScheme='teal' size='lg' onClick={onOpen} leftIcon={<PiGearFill size={20} />}>
-				表示設定
-			</Button>
-			<Modal onClose={onClose} isOpen={isOpen} isCentered>
-				<ModalOverlay />
-				<ModalContent>
-					<ModalBody padding={0}>
-						<DividedList itemProps={items} />
-					</ModalBody>
-				</ModalContent>
-			</Modal>
-		</Box>
 	);
 }
 

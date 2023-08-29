@@ -166,12 +166,21 @@ function QuotedContainer(props: {
  */
 function RepliedContainer(props: {
 	tweetId: string;
+	conversationId?: string;
 	loadAuthorData: (authorId: string) => t_dbAuthor;
 	loadTweetData: (tweetId: string) => t_dbTweetDataParsed;
 	onImageGallery: t_onImageGallery;
 	noMedias: boolean;
 }) {
-	const tweetData = props.loadTweetData(props.tweetId);
+	const _loadTweetData = (): t_dbTweetDataParsed => {
+		const rep = props.loadTweetData(props.tweetId);
+		if (rep.tweet_id !== '0') {
+			return rep;
+		}
+		console.log('conversation! - ' + props.conversationId);
+		return props.loadTweetData(props.conversationId ?? '');
+	};
+	const tweetData = _loadTweetData();
 	if (tweetData.tweet_id === '0') {
 		return null;
 	}
