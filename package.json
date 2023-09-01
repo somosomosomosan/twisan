@@ -2,7 +2,7 @@
 	"name": "web-twitter-scraper-react",
 	"version": "0.1.0",
 	"private": true,
-	"homepage": "https://somosomosomosan.github.io/twt",
+	"homepage": "https://somosomosomosan.github.io/twisan",
 	"dependencies": {
 		"@chakra-ui/react": "^2.8.0",
 		"@emotion/react": "^11.11.1",
