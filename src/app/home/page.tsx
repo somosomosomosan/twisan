@@ -17,7 +17,7 @@ export default function PageHome() {
 function Content() {
 	return (
 		<div>
-			<Link to={'/smash'}>スマブラ</Link>
+			<Link to={'/smash'}>スマブラ.</Link>
 		</div>
 	);
 }

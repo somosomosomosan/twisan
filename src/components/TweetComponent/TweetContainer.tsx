@@ -177,7 +177,7 @@ function RepliedContainer(props: {
 		if (rep.tweet_id !== '0') {
 			return rep;
 		}
-		console.log('conversation! - ' + props.conversationId);
+		//console.log('conversation! - ' + props.conversationId);
 		return props.loadTweetData(props.conversationId ?? '');
 	};
 	const tweetData = _loadTweetData();
