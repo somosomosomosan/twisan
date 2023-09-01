@@ -3,6 +3,7 @@ import { css } from '@emotion/react';
 import { ReactNode } from 'react';
 import reactStringReplace from 'react-string-replace';
 import * as Re from 'remeda';
+import { randomNum } from '../../utilfuncs/randomNum';
 import { COLOR_LINK, SIZE_TEXT_M, SIZE_TEXT_S } from './consts';
 import { t_urls } from './types';
 
@@ -152,9 +153,6 @@ function removeMediaUrl(text: string | ReactNode[]) {
 	//return text.replace(/https:\/\/t\.co\/\w+/g, '');
 }
 
-function randomNum() {
-	return Math.floor(Math.random() * 100000000);
-}
 const styles = {
 	textBase: css({
 		color: 'rgb(15, 20, 25)',

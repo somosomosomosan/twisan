@@ -182,7 +182,7 @@ export default function TweetComponentList(
 			<InfiniteScroll
 				loadMore={call_loadNextPage} //項目を読み込む際に処理するコールバック関数
 				hasMore={state_hasMoreListScores} //読み込みを行うかどうかの判定
-				loader={<LoadingComponent onLoad={call_loadNextPage} />} //読み込み最中に表示する項目
+				loader={<LoadingComponent key={'loader'} onLoad={call_loadNextPage} />} //読み込み最中に表示する項目
 				initialLoad={false}
 				threshold={500}
 			>
@@ -230,7 +230,7 @@ export default function TweetComponentList(
  */
 const LoadingComponent = (props: { onLoad: () => void }) => {
 	return (
-		<Button key='loader' colorScheme='teal' onClick={props.onLoad} marginTop={4} marginBottom={4}>
+		<Button colorScheme='teal' onClick={props.onLoad} marginTop={4} marginBottom={4}>
 			次のページ
 		</Button>
 	);

@@ -7,13 +7,6 @@ import PageHome from './app/home/page';
 import './index.css';
 import reportWebVitals from './reportWebVitals';
 
-import TagManager from 'react-gtm-module';
-const tagManagerArgs = {
-	gtmId: 'GTM-WGJ38LSL',
-};
-
-TagManager.initialize(tagManagerArgs);
-
 const root = ReactDOM.createRoot(document.getElementById('root') as HTMLElement);
 const queryClient = new QueryClient({
 	defaultOptions: {
