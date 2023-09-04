@@ -104,6 +104,8 @@ function LoaderWrapper() {
 	const readTweets = setupReads(CATEGORY_NAME, today);
 	const blockedAccounts = loadBlockedAccountsFromStorage(CATEGORY_NAME);
 	const tweetViewStyleMode = loadTweetViewStyleMode();
+
+	console.log('LoaderWrapper');
 	return (
 		<Content
 			tweetViewStyleMode={tweetViewStyleMode}
