@@ -29,6 +29,7 @@ import { useQuery } from '@tanstack/react-query';
 import { format } from 'date-fns';
 import * as Rb from 'rambda';
 import { Suspense, useState } from 'react';
+import { Helmet } from 'react-helmet-async';
 import { FaCheck, FaChevronDown } from 'react-icons/fa';
 import { MdOutlineTipsAndUpdates } from 'react-icons/md';
 import { COLOR_BORDER, COLOR_SUBTEXT } from '../../../components/TweetComponent/consts';
@@ -36,7 +37,7 @@ import { t_dbAuthor, t_dbTweetDataParsed, t_dbTweetScores } from '../../../compo
 import TweetComponentList from '../../../components/TweetList/TweetComponentList';
 import { t_tweetViewStyleMode } from '../../../components/TweetList/TweetListItem';
 import { t_blockedAccount } from '../../../components/TweetList/types';
-import { READS_SAVE_DAYS } from '../../../consts';
+import { READS_SAVE_DAYS, SITE_TITLE } from '../../../consts';
 import { getRankingData } from '../../../utilfuncs/getRankingData';
 import {
 	loadBlockedAccountsFromStorage,
@@ -51,6 +52,11 @@ const CATEGORY_NAME = 'smash';
 export default function PageSmash() {
 	return (
 		<div>
+			<Helmet>
+				<title>
+					{SITE_TITLE.smash} | {SITE_TITLE.base}
+				</title>
+			</Helmet>
 			<Container maxW='100%' centerContent marginTop={4} marginBottom={4}>
 				<VStack spacing={4} align='stretch'>
 					<Heading
@@ -59,9 +65,9 @@ export default function PageSmash() {
 						noOfLines={1}
 						fontFamily={`Meiryo, "Helvetica Neue", Arial, "Hiragino Kaku Gothic ProN", "Hiragino Sans", sans-serif`}
 					>
-						●●ランキング: スマブラ
+						{SITE_TITLE.base}: {SITE_TITLE.smash}
 					</Heading>
-					<Text size='sm'>スマブラアカウントの間で最近話題の投稿</Text>
+					<Text size='sm'>スマブラアカウントの間で最近話題の投稿集</Text>
 				</VStack>
 			</Container>
 			<Suspense fallback={<div>Loading...</div>}>
