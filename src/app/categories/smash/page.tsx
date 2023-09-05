@@ -28,7 +28,7 @@ import {
 import { useQuery } from '@tanstack/react-query';
 import { format } from 'date-fns';
 import * as Rb from 'rambda';
-import { Suspense, useState } from 'react';
+import { Suspense, useCallback, useState } from 'react';
 import { Helmet } from 'react-helmet-async';
 import { FaCheck, FaChevronDown } from 'react-icons/fa';
 import { MdOutlineTipsAndUpdates } from 'react-icons/md';
@@ -101,11 +101,9 @@ function LoaderWrapper() {
 		queryKey: [CATEGORY_NAME],
 		queryFn: () => getRankingData(CATEGORY_NAME),
 	});
-	const readTweets = setupReads(CATEGORY_NAME, today);
 	const blockedAccounts = loadBlockedAccountsFromStorage(CATEGORY_NAME);
 	const tweetViewStyleMode = loadTweetViewStyleMode();
 
-	console.log('LoaderWrapper');
 	return (
 		<Content
 			tweetViewStyleMode={tweetViewStyleMode}
@@ -113,7 +111,6 @@ function LoaderWrapper() {
 			tweets={data?.tweets ?? []}
 			authors={data?.authors ?? []}
 			blockedAccounts={blockedAccounts}
-			readTweets={readTweets}
 			today={today}
 			finishedScrapingDate={new Date(data?.finished ?? '')}
 		/>
@@ -128,9 +125,22 @@ function chunkScore(scores: t_dbTweetScores[], tweetViewStyleMode: t_tweetViewSt
 }
 
 function Content(
-	props: Omit<t_storagedData, 'chunkedScores'> & { scores: t_dbTweetScores[]; today: Date; finishedScrapingDate: Date },
+	props: Omit<t_storagedData, 'chunkedScores' | 'readTweets'> & {
+		scores: t_dbTweetScores[];
+		today: Date;
+		finishedScrapingDate: Date;
+	},
 ) {
 	const [state_collapseRead, set_collapseRead] = useState<boolean>(false);
+	const [state_reads, set_reads] = useState<t_reads[]>(setupReads(CATEGORY_NAME, props.today));
+	const call_changeReadCollapseMode = useCallback(() => {
+		set_collapseRead(!state_collapseRead);
+		if (state_collapseRead) {
+			return;
+		}
+		set_reads(setupReads(CATEGORY_NAME, props.today));
+		console.log('call_changeReadCollapseMode-reload');
+	}, [state_collapseRead, props.today]);
 	/*
 	const [state_tweetViewStyleMode, set_tweetViewStyleMode] = useState<t_tweetViewStyleMode>(props.tweetViewStyleMode);
 	const [state_chunkedScores, set_chunkedScores] = useState<t_dbTweetScores[][]>(
@@ -159,7 +169,7 @@ function Content(
 					<Hide below='lg'>
 						<OptionsForPc
 							isCollapseRead={state_collapseRead}
-							onChangeCollapseMode={() => set_collapseRead((e) => !e)}
+							onChangeCollapseMode={call_changeReadCollapseMode}
 							tweetViewStyleMode={props.tweetViewStyleMode}
 							onChangeTweetViewStyleMode={(e) => {
 								//set_tweetViewStyleMode(e);
@@ -199,6 +209,7 @@ function Content(
 							categoryName={CATEGORY_NAME}
 							collapseRead={state_collapseRead}
 							today={props.today}
+							readTweets={state_reads}
 						/>
 					</Suspense>
 				</Box>

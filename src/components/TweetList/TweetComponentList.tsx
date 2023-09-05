@@ -96,11 +96,15 @@ export default function TweetComponentList(
 	const call_getTweetData = useCallback((tweetId: string) => getTweetData(props.tweets, tweetId), [props.tweets]);
 	//既読ツイートIDを取得
 	const getReadTweetIds = (): string[] => {
-		return Re.pipe(
-			[...props.readTweets, ref_todaysReads.current],
+		const r = Re.pipe(
+			props.readTweets,
 			Rb.map((e) => e.tweet_ids),
 			flattenUniq,
 		);
+		console.log({
+			getReadTweetIds: r,
+		});
+		return r;
 	};
 	//今日の既読を追加。そして保存。
 	const call_addTodayReads = useCallback((tweetId: string) => {
