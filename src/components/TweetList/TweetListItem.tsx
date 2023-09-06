@@ -14,14 +14,19 @@ import { t_activatedTweetData } from './TweetComponentList';
 
 export type t_tweetViewStyleMode = 'CUSTOM' | 'EMBED' | 'NO_MEDIAS';
 
-export default React.memo(
-	TweetListItem,
-	(prevProps, nextProps) =>
+export default React.memo(TweetListItem, (prevProps, nextProps) => {
+	console.log({
+		readPrev: prevProps.isRead,
+		readNext: nextProps.isRead,
+		text: nextProps.tweetData.text,
+	});
+	return (
 		prevProps.tweetViewStyleMode === nextProps.tweetViewStyleMode &&
 		prevProps.isBlockedAccount === nextProps.isBlockedAccount &&
 		prevProps.isRead === nextProps.isRead &&
-		prevProps.isReexpanded === nextProps.isReexpanded,
-);
+		prevProps.isReexpanded === nextProps.isReexpanded
+	);
+});
 function TweetListItem({
 	tweetViewStyleMode,
 	score,

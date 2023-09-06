@@ -117,13 +117,6 @@ function LoaderWrapper() {
 	);
 }
 
-function chunkScore(scores: t_dbTweetScores[], tweetViewStyleMode: t_tweetViewStyleMode) {
-	if (tweetViewStyleMode === 'EMBED') {
-		return Rb.splitEvery(3, scores);
-	}
-	return Rb.splitEvery(5, scores);
-}
-
 function Content(
 	props: Omit<t_storagedData, 'chunkedScores' | 'readTweets'> & {
 		scores: t_dbTweetScores[];
@@ -131,22 +124,7 @@ function Content(
 		finishedScrapingDate: Date;
 	},
 ) {
-	const [state_collapseRead, set_collapseRead] = useState<boolean>(false);
-	const [state_reads, set_reads] = useState<t_reads[]>(setupReads(CATEGORY_NAME, props.today));
-	const call_changeReadCollapseMode = useCallback(() => {
-		set_collapseRead(!state_collapseRead);
-		if (state_collapseRead) {
-			return;
-		}
-		set_reads(setupReads(CATEGORY_NAME, props.today));
-		console.log('call_changeReadCollapseMode-reload');
-	}, [state_collapseRead, props.today]);
-	/*
-	const [state_tweetViewStyleMode, set_tweetViewStyleMode] = useState<t_tweetViewStyleMode>(props.tweetViewStyleMode);
-	const [state_chunkedScores, set_chunkedScores] = useState<t_dbTweetScores[][]>(
-		chunkScore(props.scores, props.tweetViewStyleMode),
-	);
-	*/
+	const { state_collapseRead, state_reads, onChangeCollapseReadsMode } = useReads(props.today);
 	/*
 	おそらくinfinite scrollの方でstateを保持し続けてるためここで途中で変更しても変わらない
 	ページ再読み込みさせるしか
@@ -169,7 +147,7 @@ function Content(
 					<Hide below='lg'>
 						<OptionsForPc
 							isCollapseRead={state_collapseRead}
-							onChangeCollapseMode={call_changeReadCollapseMode}
+							onChangeCollapseReadsMode={onChangeCollapseReadsMode}
 							tweetViewStyleMode={props.tweetViewStyleMode}
 							onChangeTweetViewStyleMode={(e) => {
 								//set_tweetViewStyleMode(e);
@@ -182,7 +160,7 @@ function Content(
 						<TipsForMobile />
 						<OptionsForMobile
 							isCollapseRead={state_collapseRead}
-							onChangeCollapseMode={() => set_collapseRead((e) => !e)}
+							onChangeCollapseReadsMode={onChangeCollapseReadsMode}
 							tweetViewStyleMode={props.tweetViewStyleMode}
 							onChangeTweetViewStyleMode={(e) => {
 								//set_tweetViewStyleMode(e);
@@ -235,10 +213,11 @@ function Content(
 }
 
 function Tips(props: { isPc: boolean }) {
+	const clickText = props.isPc ? 'クリック' : 'タップ';
 	const viewModeGuideText = props.isPc ? '投稿表示設定' : '表示設定';
 	return (
 		<UnorderedList spacing={3}>
-			<ListItem>投稿をクリックするといろいろできます。</ListItem>
+			<ListItem>投稿を{clickText}するといろいろできます。</ListItem>
 			<ListItem>通信量が気になる方は、「{viewModeGuideText}」→「画像無し」をどうぞ。</ListItem>
 			<ListItem>データ収集精度はこれから徐々に良くなっていきます。</ListItem>
 		</UnorderedList>
@@ -295,7 +274,7 @@ function TipsForMobile() {
 
 function OptionsForPc(props: {
 	isCollapseRead: boolean;
-	onChangeCollapseMode: () => any;
+	onChangeCollapseReadsMode: () => any;
 	tweetViewStyleMode: t_tweetViewStyleMode;
 	onChangeTweetViewStyleMode: (e: t_tweetViewStyleMode) => any;
 }) {
@@ -327,7 +306,7 @@ function OptionsForPc(props: {
 						</MenuItem>
 					</MenuList>
 				</Menu>
-				<Button variant='outline' colorScheme='teal' size='lg' onClick={props.onChangeCollapseMode}>
+				<Button variant='outline' colorScheme='teal' size='lg' onClick={props.onChangeCollapseReadsMode}>
 					{props.isCollapseRead ? '既読を表示' : '既読を非表示'}
 				</Button>
 				{/*
@@ -343,7 +322,7 @@ function OptionsForPc(props: {
 
 function OptionsForMobile(props: {
 	isCollapseRead: boolean;
-	onChangeCollapseMode: () => any;
+	onChangeCollapseReadsMode: () => any;
 	tweetViewStyleMode: t_tweetViewStyleMode;
 	onChangeTweetViewStyleMode: (e: t_tweetViewStyleMode) => any;
 }) {
@@ -372,7 +351,9 @@ function OptionsForMobile(props: {
 				>
 					埋め込み表示
 				</MenuItem>
-				<MenuItem onClick={props.onChangeCollapseMode}>{props.isCollapseRead ? '既読を表示' : '既読を非表示'}</MenuItem>
+				<MenuItem onClick={props.onChangeCollapseReadsMode}>
+					{props.isCollapseRead ? '既読を表示' : '既読を非表示'}
+				</MenuItem>
 				{/*
 				<MenuItem as='a' href='#'>
 					非表示アカウント設定
@@ -381,6 +362,31 @@ function OptionsForMobile(props: {
 			</MenuList>
 		</Menu>
 	);
+}
+
+function useReads(today: Date) {
+	const [state_collapseRead, set_collapseRead] = useState<boolean>(false);
+	const [state_reads, set_reads] = useState<t_reads[]>(setupReads(CATEGORY_NAME, today));
+	const onChangeCollapseReadsMode = useCallback(() => {
+		set_collapseRead(!state_collapseRead);
+		if (state_collapseRead) {
+			return;
+		}
+		set_reads(setupReads(CATEGORY_NAME, today));
+	}, [state_collapseRead, today]);
+
+	return {
+		state_collapseRead,
+		state_reads,
+		onChangeCollapseReadsMode,
+	};
+}
+
+function chunkScore(scores: t_dbTweetScores[], tweetViewStyleMode: t_tweetViewStyleMode) {
+	if (tweetViewStyleMode === 'EMBED') {
+		return Rb.splitEvery(3, scores);
+	}
+	return Rb.splitEvery(5, scores);
 }
 
 function setupReads(categoryName: string, today: Date) {

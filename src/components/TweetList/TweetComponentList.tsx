@@ -40,135 +40,30 @@ export type t_activatedTweetData = {
 export default function TweetComponentList(
 	props: t_storagedData & { categoryName: string; today: Date; collapseRead: boolean },
 ) {
-	//InfiniteScrollリストページのindex
-	const ref_listPageIndex = useRef<number>(1);
-	//lightboxのslide用
-	const ref_slides = useRef<t_lightboxImage[]>([]);
-	//今日のreads
-	const ref_todaysReads = useRef<t_reads>(
-		props.readTweets.find((e) => {
-			const d = parseYyyy_mm_dd(e.yyyy_mm_dd);
-			return differenceInCalendarDays(props.today, d) === 0;
-		}) ?? { yyyy_mm_dd: intoYyyy_mm_dd(props.today), tweet_ids: [] },
+	const { state_listScores, state_hasMoreListScores, onLoadNextPage } = useListHooks(props.chunkedScores);
+	const { ref_slides, state_lightboxOpen, state_slideInitIndex, setImagesAndOpenLightbox, closeLightbox } =
+		useLightboxHooks();
+	const { state_activatedTweetData, isOpenTwOption, onCloseTwOption, onOpenTwOption } = useTweetOptions();
+	const { getAuthorData, getTweetData, getReadTweetIds } = useGetTweetData(
+		props.tweets,
+		props.authors,
+		props.readTweets,
 	);
-	//InfiniteScrollのinitialLoadをtrueにすると最初に同じページを2度読み込んでしまう不具合が起きる。なのでfalseにし、初期値で0ページ目をセットする。
-	const [state_listScores, set_listScores] = useState<t_dbTweetScores[]>(props.chunkedScores[0]);
-	//lightboxの開閉
-	const [state_lightboxOpen, set_lightboxOpen] = useState<boolean>(false);
-	//lightboxのslideで最初に開く画像index
-	const [state_slideInitIndex, set_slideInitIndex] = useState<number>(0);
-	//InfiniteScrollリストの次のページがあるかどうか
-	const [state_hasMoreListScores, set_hasMoreListScores] = useState<boolean>(true);
-	//ツイートオプションモーダルに渡すツイートデータ
-	const [state_activatedTweetData, set_activatedTweetData] = useState<t_activatedTweetData>();
-	//折り畳まれていたものを展開したツイート
-	const [state_reexpandedTweets, set_reexpandedTweets] = useState<string[]>([]);
-	const [state_blockedAccounts, set_blockedAccounts] = useState<t_blockedAccount[]>(props.blockedAccounts);
-
-	//モーダル関連
-	const { isOpen: isOpenTwOption, onOpen: onOpenTwOption, onClose: onCloseTwOption } = useDisclosure();
-	//ツイートオプションを開く
-	const call_onOpenTwOption = useCallback((data: t_activatedTweetData) => {
-		set_activatedTweetData(data);
-		onOpenTwOption();
-	}, []);
-	//lightboxに画像をセットし開く
-	const call_setImagesAndOpenLightbox: t_onImageGallery = useCallback((data, index) => {
-		ref_slides.current = data.map((e) => {
-			return e.type === 'image'
-				? { type: 'image', src: e.src }
-				: { type: 'video', poster: e.video_poster_url, sources: [{ src: e.src, type: 'video/mp4' }] };
-		});
-		set_slideInitIndex(index);
-		set_lightboxOpen(true);
-	}, []);
-	//InfiniteScrollの次のページを読み込む
-	const call_loadNextPage = useCallback(() => {
-		if (ref_listPageIndex.current >= props.chunkedScores.length) {
-			set_hasMoreListScores(false);
-			return;
-		}
-		set_listScores((e) => [...e, ...props.chunkedScores[ref_listPageIndex.current]]);
-		ref_listPageIndex.current = ref_listPageIndex.current + 1;
-	}, []);
-
-	const call_getAuthorData = useCallback((authorId: string) => getAuthorData(props.authors, authorId), [props.authors]);
-	const call_getTweetData = useCallback((tweetId: string) => getTweetData(props.tweets, tweetId), [props.tweets]);
-	//既読ツイートIDを取得
-	const getReadTweetIds = (): string[] => {
-		const r = Re.pipe(
-			props.readTweets,
-			Rb.map((e) => e.tweet_ids),
-			flattenUniq,
-		);
-		console.log({
-			getReadTweetIds: r,
-		});
-		return r;
-	};
-	//今日の既読を追加。そして保存。
-	const call_addTodayReads = useCallback((tweetId: string) => {
-		//とりあえず追加していく。高速で何度も呼ばれることがあるので重たい処理（重複除去）は保存時にだけやる。
-		ref_todaysReads.current = {
-			...ref_todaysReads.current,
-			tweet_ids: [...ref_todaysReads.current.tweet_ids, tweetId],
-		};
-		//保存
-		saveTodaysReadsDebounce(ref_todaysReads.current);
-	}, []);
-	//渡された既読を保存。debounceで。
-	const saveTodaysReadsDebounce = useDebouncedCallback(
-		// function
-		(reads: t_reads) => {
-			addReadsToStorage(props.categoryName, {
-				...reads,
-				tweet_ids: uniqForShortArray(reads.tweet_ids),
-			});
-		},
-		// delay in ms
-		2000,
+	const { state_reexpandedTweets, state_blockedAccounts, onReexpand, onBlock, onUnblock } = useBlockTweet(
+		props.categoryName,
+		props.tweets,
+		props.authors,
+		props.blockedAccounts,
+		getAuthorData,
 	);
-	//非表示を再展開
-	const call_onReexpand = useCallback((tweetId: string) => {
-		set_reexpandedTweets((e) => uniqForShortArray([...e, tweetId]));
-	}, []);
-	//指定投稿者のツイートのreexpandedをリセットする NG処理からのみ呼ばれる
-	const resetReexpandedTheAuthorsTweets = (accountId: string) => {
-		const authorsTweets = props.tweets.filter((e) => e.author_id === accountId);
-		set_reexpandedTweets((reexTwIds) =>
-			reexTwIds.filter((reexTwId) =>
-				authorsTweets.find((authorsTweet) => authorsTweet.tweet_id === reexTwId) ? false : true,
-			),
-		);
-	};
-	//NGアカウントを追加。localstorage更新。
-	const call_onBlock = useCallback((accountId: string) => {
-		set_blockedAccounts((e) => {
-			//これをしないと再展開したのをブロック解除→再ブロックしたときに展開されっぱなしになる（大した問題ではないが）
-			resetReexpandedTheAuthorsTweets(accountId);
-			//重複は除去
-			const blockeds = Rb.uniqBy(Rb.prop('account_id'), [...e, getAuthorData(props.authors, accountId)]);
-			//保存
-			saveBlockedAccounts(props.categoryName, blockeds);
-			return blockeds;
-		});
-	}, []);
-	//NGアカウントを解除。localstorage更新。
-	const call_onUnblock = useCallback((accountId: string) => {
-		set_blockedAccounts((e) => {
-			const blockeds = e.filter((e) => e.account_id !== accountId);
-			//保存
-			saveBlockedAccounts(props.categoryName, blockeds);
-			return blockeds;
-		});
-	}, []);
+	const { addTodayReads } = useTodaysReads(props.categoryName, props.readTweets, props.today);
 
 	return (
 		<Box>
 			<Lightbox
 				plugins={[Video, Zoom]}
 				open={state_lightboxOpen}
-				close={() => set_lightboxOpen(false)}
+				close={closeLightbox}
 				index={state_slideInitIndex}
 				slides={ref_slides.current}
 				carousel={{ finite: true }}
@@ -178,15 +73,15 @@ export default function TweetComponentList(
 				<TweetOptionModal
 					isOpen={isOpenTwOption}
 					onClose={onCloseTwOption}
-					onBlock={call_onBlock}
-					onUnblock={call_onUnblock}
+					onBlock={onBlock}
+					onUnblock={onUnblock}
 					{...state_activatedTweetData}
 				/>
 			)}
 			<InfiniteScroll
-				loadMore={call_loadNextPage} //項目を読み込む際に処理するコールバック関数
+				loadMore={onLoadNextPage} //項目を読み込む際に処理するコールバック関数
 				hasMore={state_hasMoreListScores} //読み込みを行うかどうかの判定
-				loader={<LoadingComponent key={'loader'} onLoad={call_loadNextPage} />} //読み込み最中に表示する項目
+				loader={<LoadingComponent key={'loader'} onLoad={onLoadNextPage} />} //読み込み最中に表示する項目
 				initialLoad={false}
 				threshold={500}
 			>
@@ -194,8 +89,8 @@ export default function TweetComponentList(
 					//NG・既読はここで予め判定しておく。ListItemの方でそれらを参照させる方式だと、どこかのそれに変更があったら全てのListItemが再描画されるようになってしまう。
 					const data = buildRankedTweetData(
 						e,
-						props.authors,
-						props.tweets,
+						getTweetData,
+						getAuthorData,
 						state_blockedAccounts,
 						props.collapseRead ? getReadTweetIds() : [],
 						state_reexpandedTweets,
@@ -208,15 +103,15 @@ export default function TweetComponentList(
 							rank={i}
 							authorData={data.authorData}
 							tweetData={data.tweetData}
-							loadAuthorData={call_getAuthorData}
-							loadTweetData={call_getTweetData}
+							loadAuthorData={getAuthorData}
+							loadTweetData={getTweetData}
 							isBlockedAccount={data.isNgAccount}
 							isRead={data.isRead}
 							isReexpanded={data.isReexpanded}
-							onImageGallery={call_setImagesAndOpenLightbox}
-							onOpenTwOption={call_onOpenTwOption}
-							onViewingTweet={call_addTodayReads}
-							onReexpand={call_onReexpand}
+							onImageGallery={setImagesAndOpenLightbox}
+							onOpenTwOption={onOpenTwOption}
+							onViewingTweet={addTodayReads}
+							onReexpand={onReexpand}
 						/>
 					);
 				})}
@@ -225,6 +120,189 @@ export default function TweetComponentList(
 	);
 }
 
+function useListHooks(chunkedScores: t_dbTweetScores[][]) {
+	//InfiniteScrollリストページのindex
+	const ref_listPageIndex = useRef<number>(1);
+	//InfiniteScrollのinitialLoadをtrueにすると最初に同じページを2度読み込んでしまう不具合が起きる。なのでfalseにし、初期値で0ページ目をセットする。
+	const [state_listScores, set_listScores] = useState<t_dbTweetScores[]>(chunkedScores[0]);
+	//InfiniteScrollリストの次のページがあるかどうか
+	const [state_hasMoreListScores, set_hasMoreListScores] = useState<boolean>(true);
+	//InfiniteScrollの次のページを読み込む
+	const onLoadNextPage = useCallback(() => {
+		if (ref_listPageIndex.current >= chunkedScores.length) {
+			set_hasMoreListScores(false);
+			return;
+		}
+		set_listScores((e) => [...e, ...chunkedScores[ref_listPageIndex.current]]);
+		ref_listPageIndex.current = ref_listPageIndex.current + 1;
+	}, []);
+	return {
+		state_listScores,
+		state_hasMoreListScores,
+		onLoadNextPage,
+	};
+}
+
+function useLightboxHooks() {
+	//lightboxのslide用
+	const ref_slides = useRef<t_lightboxImage[]>([]);
+	//lightboxの開閉
+	const [state_lightboxOpen, set_lightboxOpen] = useState<boolean>(false);
+	//lightboxのslideで最初に開く画像index
+	const [state_slideInitIndex, set_slideInitIndex] = useState<number>(0);
+	//lightboxに画像をセットし開く
+	const setImagesAndOpenLightbox: t_onImageGallery = useCallback((data, index) => {
+		ref_slides.current = data.map((e) => {
+			return e.type === 'image'
+				? { type: 'image', src: e.src }
+				: { type: 'video', poster: e.video_poster_url, sources: [{ src: e.src, type: 'video/mp4' }] };
+		});
+		set_slideInitIndex(index);
+		set_lightboxOpen(true);
+	}, []);
+	const closeLightbox = useCallback(() => set_lightboxOpen(false), []);
+
+	return {
+		ref_slides,
+		state_lightboxOpen,
+		state_slideInitIndex,
+		setImagesAndOpenLightbox,
+		closeLightbox,
+	};
+}
+
+function useTweetOptions() {
+	//ツイートオプションモーダルに渡すツイートデータ
+	const [state_activatedTweetData, set_activatedTweetData] = useState<t_activatedTweetData>();
+	//モーダル関連
+	const { isOpen: isOpenTwOption, onOpen, onClose: onCloseTwOption } = useDisclosure();
+	//ツイートオプションを開く
+	const onOpenTwOption = useCallback((data: t_activatedTweetData) => {
+		set_activatedTweetData(data);
+		onOpen();
+	}, []);
+
+	return {
+		state_activatedTweetData,
+		isOpenTwOption,
+		onCloseTwOption,
+		onOpenTwOption,
+	};
+}
+
+function useBlockTweet(
+	categoryName: string,
+	tweets: t_dbTweetDataParsed[],
+	authors: t_dbAuthor[],
+	blockedAccounts: t_blockedAccount[],
+	getAuthorData: (authorId: string) => t_dbAuthor,
+) {
+	//折り畳まれていたものを展開したツイート
+	const [state_reexpandedTweets, set_reexpandedTweets] = useState<string[]>([]);
+	const [state_blockedAccounts, set_blockedAccounts] = useState<t_blockedAccount[]>(blockedAccounts);
+	//非表示を再展開
+	const onReexpand = useCallback((tweetId: string) => {
+		set_reexpandedTweets((e) => uniqForShortArray([...e, tweetId]));
+	}, []);
+	//指定投稿者のツイートのreexpandedをリセットする NG処理からのみ呼ばれる
+	const resetReexpandedTheAuthorsTweets = (accountId: string) => {
+		const authorsTweets = tweets.filter((e) => e.author_id === accountId);
+		set_reexpandedTweets((reexTwIds) =>
+			reexTwIds.filter((reexTwId) =>
+				authorsTweets.find((authorsTweet) => authorsTweet.tweet_id === reexTwId) ? false : true,
+			),
+		);
+	};
+	//NGアカウントを追加。localstorage更新。
+	const onBlock = useCallback((accountId: string) => {
+		set_blockedAccounts((e) => {
+			//これをしないと再展開したのをブロック解除→再ブロックしたときに展開されっぱなしになる（大した問題ではないが）
+			resetReexpandedTheAuthorsTweets(accountId);
+			//重複は除去
+			const blockeds = Rb.uniqBy(Rb.prop('account_id'), [...e, getAuthorData(accountId)]);
+			//保存
+			saveBlockedAccounts(categoryName, blockeds);
+			return blockeds;
+		});
+	}, []);
+	//NGアカウントを解除。localstorage更新。
+	const onUnblock = useCallback((accountId: string) => {
+		set_blockedAccounts((e) => {
+			const blockeds = e.filter((e) => e.account_id !== accountId);
+			//保存
+			saveBlockedAccounts(categoryName, blockeds);
+			return blockeds;
+		});
+	}, []);
+
+	return {
+		state_reexpandedTweets,
+		state_blockedAccounts,
+		onReexpand,
+		onBlock,
+		onUnblock,
+	};
+}
+
+function useTodaysReads(categoryName: string, readTweets: t_reads[], today: Date) {
+	//今日のreads
+	const ref_todaysReads = useRef<t_reads>(
+		readTweets.find((e) => {
+			const d = parseYyyy_mm_dd(e.yyyy_mm_dd);
+			return differenceInCalendarDays(today, d) === 0;
+		}) ?? { yyyy_mm_dd: intoYyyy_mm_dd(today), tweet_ids: [] },
+	);
+	//今日の既読を追加。そして保存。
+	const addTodayReads = useCallback((tweetId: string) => {
+		//とりあえず追加していく。高速で何度も呼ばれることがあるので重たい処理（重複除去）は保存時にだけやる。
+		ref_todaysReads.current = {
+			...ref_todaysReads.current,
+			tweet_ids: [...ref_todaysReads.current.tweet_ids, tweetId],
+		};
+		//保存
+		saveTodaysReadsDebounce(ref_todaysReads.current);
+	}, []);
+	//渡された既読を保存。debounceで。
+	const saveTodaysReadsDebounce = useDebouncedCallback(
+		// function
+		(reads: t_reads) => {
+			addReadsToStorage(categoryName, {
+				...reads,
+				tweet_ids: uniqForShortArray(reads.tweet_ids),
+			});
+		},
+		// delay in ms
+		2000,
+	);
+
+	return {
+		addTodayReads,
+	};
+}
+
+function useGetTweetData(tweets: t_dbTweetDataParsed[], authors: t_dbAuthor[], readTweets: t_reads[]) {
+	const getAuthorData = useCallback(
+		(authorId: string) => authors.find((e) => e.account_id === authorId) ?? DUMMY_AUTHOR,
+		[authors],
+	);
+	const getTweetData = useCallback(
+		(tweetId: string) => tweets.find((e) => e.tweet_id === tweetId) ?? DUMMY_TWEET,
+		[tweets],
+	);
+	//既読ツイートIDを取得
+	const getReadTweetIds = (): string[] => {
+		return Re.pipe(
+			readTweets,
+			Rb.map((e) => e.tweet_ids),
+			flattenUniq,
+		);
+	};
+	return {
+		getAuthorData,
+		getTweetData,
+		getReadTweetIds,
+	};
+}
 /**
  * ページを開いてすぐに既読を非表示にすると自動では次ページが読み込まれない
 	既読を非表示にしてリストの高さが画面より小さくなるとそうなる模様
@@ -329,18 +407,18 @@ const createNamesAndMainTextAndUrl = (
 	return [`${authorData.name}@${authorData.screen_name}`, mainText, mediaUrls, url].join('\n');
 };
 function buildRankedTweetData(
-	score: t_dbTweetScores,
-	authors: t_dbAuthor[],
-	tweets: t_dbTweetDataParsed[],
+	tweetScore: t_dbTweetScores,
+	getTweetData: (tweetId: string) => t_dbTweetDataParsed,
+	getAuthorData: (authorId: string) => t_dbAuthor,
 	ngAccounts: t_blockedAccount[],
 	readTweets: string[],
 	reexpandedTweets: string[],
 ) {
-	const tweetData = getTweetData(tweets, score.tweet_id);
+	const tweetData = getTweetData(tweetScore.tweet_id);
 	return {
-		score: score.score,
-		authorData: getAuthorData(authors, tweetData.author_id),
+		score: tweetScore.score,
 		tweetData: tweetData,
+		authorData: getAuthorData(tweetData.author_id),
 		isNgAccount: isNgAccount(ngAccounts, tweetData.author_id),
 		isRead: readTweets.includes(tweetData.tweet_id),
 		isReexpanded: reexpandedTweets.includes(tweetData.tweet_id),
@@ -365,12 +443,6 @@ const DUMMY_TWEET: t_dbTweetDataParsed = {
 	replies: 0,
 	others: {},
 };
-function getAuthorData(authors: t_dbAuthor[], authorId: string): t_dbAuthor {
-	return authors.find((e) => e.account_id === authorId) ?? DUMMY_AUTHOR;
-}
-function getTweetData(tweetData: t_dbTweetDataParsed[], tweetId: string): t_dbTweetDataParsed {
-	return tweetData.find((e) => e.tweet_id === tweetId) ?? DUMMY_TWEET;
-}
 function isNgAccount(ngAccounts: t_blockedAccount[], authorId: string): boolean {
 	return ngAccounts.find((e) => e.account_id === authorId) ? true : false;
 }
