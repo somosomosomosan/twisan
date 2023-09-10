@@ -1,20 +1,25 @@
-import { Box } from '@chakra-ui/react';
+import { Box, useColorMode } from '@chakra-ui/react';
+import { COLOR_BG_IN_DARKMODE } from '../TweetComponent/consts';
 
 export default function TouchableHighlight(props: {
 	children: React.ReactNode;
 	baseBackgroundColor?: string;
 	boxProps?: React.ComponentProps<typeof Box>;
 }) {
-	const bgRgb = convertColorCodeToRgb(props.baseBackgroundColor ?? '#FFFFFF');
+	const { colorMode } = useColorMode();
+	const isDarkmode = colorMode === 'dark' ? true : false;
+	const bgRgb = convertColorCodeToRgb(
+		props.baseBackgroundColor ? props.baseBackgroundColor : isDarkmode ? COLOR_BG_IN_DARKMODE : '#FFFFFF',
+	);
 	//aタグは上手くドラッグができない？なので不便。aタグを作らないようにdivのBoxでページ遷移はonclickのwindow.openで。
 	return (
 		<Box
 			{...(props.boxProps ?? undefined)}
 			backgroundColor={generateRgba(bgRgb, 1)}
 			transition='all 0.2s cubic-bezier(.08,.52,.52,1)'
-			_hover={{ backgroundColor: generateRgba(darkenRgbForHover(bgRgb), 1), cursor: 'pointer' }}
+			_hover={{ backgroundColor: generateRgba(darkenRgbForHover(bgRgb, isDarkmode), 1), cursor: 'pointer' }}
 			_active={{
-				backgroundColor: generateRgba(darkenRgbForActive(bgRgb), 1),
+				backgroundColor: generateRgba(darkenRgbForActive(bgRgb, isDarkmode), 1),
 			}}
 			//_focusWithin={{ backgroundColor: generateRgba(bgRgb, 1) }}
 		>
@@ -78,20 +83,26 @@ function convertColorCodeToRgb(hex: string): number[] {
 		return parseInt(str, 16);
 	});
 }
-function darkenRgbForHover(rgbArr: number[]) {
+function darkenRgbForHover(rgbArr: number[], isDarkmode: boolean) {
 	return [
-		(rgbArr[0] * (100 - 3.1372549019607843)) / 100,
-		(rgbArr[1] * (100 - 2.3529411764705883)) / 100,
-		(rgbArr[2] * (100 - 2.3529411764705883)) / 100,
+		darken(rgbArr[0], 3.1372549019607843, isDarkmode),
+		darken(rgbArr[1], 2.3529411764705883, isDarkmode),
+		darken(rgbArr[2], 2.3529411764705883, isDarkmode),
 	];
 }
-function darkenRgbForActive(rgbArr: number[]) {
+function darkenRgbForActive(rgbArr: number[], isDarkmode: boolean) {
 	return [
-		(rgbArr[0] * (100 - 7.0588235294117645)) / 100,
-		(rgbArr[1] * (100 - 5.098039215686274)) / 100,
-		(rgbArr[2] * (100 - 4.313725490196078)) / 100,
+		darken(rgbArr[0], 7.0588235294117645, isDarkmode),
+		darken(rgbArr[1], 5.098039215686274, isDarkmode),
+		darken(rgbArr[2], 4.313725490196078, isDarkmode),
 	];
 }
+
+function darken(base: number, offset: number, moreDarken?: boolean) {
+	const moreOffset = moreDarken ? 50 : 0;
+	return (base * (100 - (offset + moreOffset))) / 100;
+}
+
 function generateRgba(rgbArr: number[], alpha: number): string {
 	return `rgba(${rgbArr.join(',')}, ${alpha})`;
 }

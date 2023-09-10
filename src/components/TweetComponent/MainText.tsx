@@ -1,4 +1,5 @@
 /** @jsxImportSource @emotion/react */
+import { Box } from '@chakra-ui/react';
 import { css } from '@emotion/react';
 import { ReactNode } from 'react';
 import reactStringReplace from 'react-string-replace';
@@ -9,17 +10,25 @@ import { t_urls } from './types';
 
 export function MainTextM(props: { text: string; urls: t_urls[] | undefined }) {
 	return (
-		<div
-			css={[styles.textBase, styles.textM]}
+		/* @ts-ignore */
+		<Box
+			className='mainText'
+			{...CHAKRA_PROPS.textBase}
+			fontSize={`${SIZE_TEXT_M}px`}
 			//html entitiesとかをエスケープしない。元データが既にエスケープされているので2重のエスケープになってしまう。
 		>
 			{mainText(props.text, props.urls)}
-		</div>
+		</Box>
 	);
 }
 
 export function MainTextS(props: { text: string; urls: t_urls[] | undefined }) {
-	return <div css={[styles.textBase, styles.textS]}>{mainText(props.text, props.urls)}</div>;
+	return (
+		/* @ts-ignore */
+		<Box {...CHAKRA_PROPS.textBase} fontSize={`${SIZE_TEXT_S}px`}>
+			{mainText(props.text, props.urls)}
+		</Box>
+	);
 }
 
 function mainText(text: string, urls: t_urls[] | undefined) {
@@ -36,11 +45,19 @@ function mainText(text: string, urls: t_urls[] | undefined) {
 }
 
 function wrapWithP(text: string | ReactNode[]) {
-	return reactStringReplace(text, /(.*)\n/g, (match, i) => (
-		<p css={styles.para} key={match + randomNum()}>
-			{match}
-		</p>
+	console.log({ text: text });
+	return reactStringReplace(text, /(.*)/gs, (match, i) => (
+		<span css={styles.para} key={match + randomNum()} dangerouslySetInnerHTML={{ __html: match }}></span>
 	));
+	/*
+	const r1 = reactStringReplace(text, /(^(?!.*\n).*$)/g, (match, i) => (
+		<p css={styles.para} key={match + randomNum()} dangerouslySetInnerHTML={{ __html: match }}></p>
+	));
+	return reactStringReplace(r1, /(.*)\n/g, (match, i) => (
+		<p css={styles.para} key={match + randomNum()} dangerouslySetInnerHTML={{ __html: match }}></p>
+	));
+	*/
+
 	/*
 	const reg = new RegExp('(.*)\\n', 'g');
 
@@ -153,21 +170,18 @@ function removeMediaUrl(text: string | ReactNode[]) {
 	//return text.replace(/https:\/\/t\.co\/\w+/g, '');
 }
 
-const styles = {
-	textBase: css({
-		color: 'rgb(15, 20, 25)',
+const CHAKRA_PROPS = {
+	textBase: {
+		//color: COLOR_LIGHTBLACK,
 		textAlign: 'left',
-	}),
-	textM: css({
-		fontSize: SIZE_TEXT_M,
-		//lineHeight: '24px',
-	}),
-	textS: css({
-		fontSize: SIZE_TEXT_S,
-		//lineHeight: '20px',
-	}),
+	},
+} as const;
+
+const styles = {
 	para: css({
 		minHeight: '1rem',
+		//改行(\n)を改行として表示
+		whiteSpace: 'pre-wrap',
 	}),
 	textEntities: css({
 		color: COLOR_LINK,

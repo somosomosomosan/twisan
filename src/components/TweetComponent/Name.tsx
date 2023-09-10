@@ -1,8 +1,7 @@
-/** @jsxImportSource @emotion/react */
-import { css } from '@emotion/react';
+import { Box, Flex } from '@chakra-ui/react';
 import { MdVerified } from 'react-icons/md';
 import NoEscapeChakraText from '../utilCompos/NoEscapeChakraText';
-import { COLOR_LIGHTBLACK, COLOR_LINK, COLOR_SUBTEXT, SIZE_TEXT_S } from './consts';
+import { COLOR_LINK, SIZE_TEXT_S } from './consts';
 
 type P_name = {
 	name: string;
@@ -10,16 +9,18 @@ type P_name = {
 };
 export function Name(props: P_name) {
 	return (
-		<div css={styles.nameContainer}>
+		<Flex direction={'row'} align={'center'} minW={'1rem'}>
 			<NoEscapeChakraText
 				text={props.name}
 				chakraProps={{
-					css: styles.textName,
+					className: 'mainText',
+					fontSize: `${SIZE_TEXT_S}px`,
+					fontWeight: 'bold',
 					noOfLines: 1,
 				}}
 			/>
 			{props.verified && <VerifiedComponent />}
-		</div>
+		</Flex>
 	);
 }
 
@@ -32,7 +33,10 @@ export function ScreenName(props: P_screenName) {
 		<NoEscapeChakraText
 			text={`@${props.screenName}`}
 			chakraProps={{
-				css: [styles.textScreenName, props.separator && styles.m4],
+				className: 'subText',
+				fontSize: `${SIZE_TEXT_S}px`,
+				textAlign: 'left',
+				marginLeft: props.separator ? '4px' : undefined,
 				noOfLines: 1,
 			}}
 		/>
@@ -45,46 +49,17 @@ type P_nameAndUsername = P_name & P_screenName;
  */
 export function NameAndScreenName(props: Omit<P_nameAndUsername, 'separator'>) {
 	return (
-		<div css={styles.oneRowContainer}>
+		<Flex direction={'row'}>
 			<Name name={props.name} verified={props.verified} />
 			<ScreenName screenName={props.screenName} separator={true} />
-		</div>
+		</Flex>
 	);
 }
 
 function VerifiedComponent() {
 	return (
-		<div css={styles.varified}>
+		<Box marginLeft={'2px'}>
 			<MdVerified size={SIZE_TEXT_S} color={COLOR_LINK} />
-		</div>
+		</Box>
 	);
 }
-
-const styles = {
-	oneRowContainer: css({
-		display: 'flex',
-		flexDirection: 'row',
-	}),
-	nameContainer: css({
-		display: 'flex',
-		alignItems: 'center',
-		flexDirection: 'row',
-		minWidth: '1rem',
-	}),
-	textName: css({
-		color: COLOR_LIGHTBLACK,
-		fontSize: SIZE_TEXT_S,
-		fontWeight: '700',
-	}),
-	varified: css({
-		marginLeft: 2,
-	}),
-	textScreenName: css({
-		color: COLOR_SUBTEXT,
-		fontSize: SIZE_TEXT_S,
-		textAlign: 'left',
-	}),
-	m4: css({
-		marginLeft: 4,
-	}),
-};

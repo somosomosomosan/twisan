@@ -1,9 +1,8 @@
+import { Box } from '@chakra-ui/react';
 import * as Rb from 'rambda';
 import { MouseEvent } from 'react';
-import * as Re from 'remeda';
-/** @jsxImportSource @emotion/react */
-import { SerializedStyles, css } from '@emotion/react';
 import { IoMdPlay } from 'react-icons/io';
+import * as Re from 'remeda';
 import { COLOR_LINK } from './consts';
 import { t_mediaPhoto, t_mediaVideo, t_onImageGallery } from './types';
 
@@ -49,9 +48,9 @@ export default function ImageGallery({
 
 	const len = medias.length;
 	return (
-		<div css={styles.container}>
-			<div css={styles.imageContainerWrapper}>
-				<div css={styles.imagesContainerHeight}></div>
+		<Box {...CHAKRA_PROPS.container}>
+			<Box {...CHAKRA_PROPS.imageContainerWrapper}>
+				<Box {...CHAKRA_PROPS.imagesContainerHeight}></Box>
 				{len === 1 ? (
 					<One {...thumbsProps} />
 				) : len === 2 ? (
@@ -63,9 +62,9 @@ export default function ImageGallery({
 				) : (
 					<></>
 				)}
-			</div>
+			</Box>
 			{Info && Info}
-		</div>
+		</Box>
 	);
 }
 
@@ -79,130 +78,129 @@ const triggerOpenLightbox =
 
 function One({ thumbs, onClick }: P_thumbsContainer) {
 	return (
-		<div css={styles.imageContainer}>
+		<Box {...CHAKRA_PROPS.imageContainer}>
 			<ThumbContainer
-				styles={[styles.imageContainerChild]}
+				styles={CHAKRA_PROPS.imageContainerChild}
 				onClick={triggerOpenLightbox(0, onClick)}
 				thumb={thumbs[0]}
 			/>
-		</div>
+		</Box>
 	);
 }
 
 function Two({ thumbs, onClick }: P_thumbsContainer) {
 	return (
-		<div css={styles.imageContainer}>
+		<Box {...CHAKRA_PROPS.imageContainer}>
 			<ThumbContainer
-				styles={[styles.imageContainerChild, styles.imageContainerChildLeft]}
+				styles={{ ...CHAKRA_PROPS.imageContainerChild, ...CHAKRA_PROPS.imageContainerChildLeft }}
 				onClick={triggerOpenLightbox(0, onClick)}
 				thumb={thumbs[0]}
 			/>
 			<ThumbContainer
-				styles={[styles.imageContainerChild]}
+				styles={CHAKRA_PROPS.imageContainerChild}
 				onClick={triggerOpenLightbox(1, onClick)}
 				thumb={thumbs[1]}
 			/>
-		</div>
+		</Box>
 	);
 }
 function Three({ thumbs, onClick }: P_thumbsContainer) {
 	return (
-		<div css={styles.imageContainer}>
+		<Box {...CHAKRA_PROPS.imageContainer}>
 			<ThumbContainer
-				styles={[styles.imageContainerChild, styles.imageContainerChildLeft]}
+				styles={{ ...CHAKRA_PROPS.imageContainerChild, ...CHAKRA_PROPS.imageContainerChildLeft }}
 				onClick={triggerOpenLightbox(0, onClick)}
 				thumb={thumbs[0]}
 			/>
-			<div css={styles.imageContainerChild}>
+			<Box {...CHAKRA_PROPS.imageContainerChild}>
 				<ThumbContainer
-					styles={[styles.imageContainerGrandchild, styles.imageContainerGrandchildTop]}
+					styles={{ ...CHAKRA_PROPS.imageContainerGrandchild, ...CHAKRA_PROPS.imageContainerGrandchildTop }}
 					onClick={triggerOpenLightbox(1, onClick)}
 					thumb={thumbs[1]}
 				/>
 				<ThumbContainer
-					styles={[styles.imageContainerGrandchild]}
+					styles={CHAKRA_PROPS.imageContainerGrandchild}
 					onClick={triggerOpenLightbox(2, onClick)}
 					thumb={thumbs[2]}
 				/>
-			</div>
-		</div>
+			</Box>
+		</Box>
 	);
 }
 function Four({ thumbs, onClick }: P_thumbsContainer) {
 	return (
-		<div css={styles.imageContainer}>
-			<div css={[styles.imageContainerChild, styles.imageContainerChildLeft]}>
+		<Box {...CHAKRA_PROPS.imageContainer}>
+			<Box {...CHAKRA_PROPS.imageContainerChild} {...CHAKRA_PROPS.imageContainerChildLeft}>
 				<ThumbContainer
-					styles={[styles.imageContainerGrandchild, styles.imageContainerGrandchildTop]}
+					styles={{ ...CHAKRA_PROPS.imageContainerGrandchild, ...CHAKRA_PROPS.imageContainerGrandchildTop }}
 					onClick={triggerOpenLightbox(0, onClick)}
 					thumb={thumbs[0]}
 				/>
 				<ThumbContainer
-					styles={[styles.imageContainerGrandchild]}
+					styles={CHAKRA_PROPS.imageContainerGrandchild}
 					onClick={triggerOpenLightbox(2, onClick)}
 					thumb={thumbs[2]}
 				/>
-			</div>
-			<div css={styles.imageContainerChild}>
+			</Box>
+			<Box {...CHAKRA_PROPS.imageContainerChild}>
 				<ThumbContainer
-					styles={[styles.imageContainerGrandchild, styles.imageContainerGrandchildTop]}
+					styles={{ ...CHAKRA_PROPS.imageContainerGrandchild, ...CHAKRA_PROPS.imageContainerGrandchildTop }}
 					onClick={triggerOpenLightbox(1, onClick)}
 					thumb={thumbs[1]}
 				/>
 				<ThumbContainer
-					styles={[styles.imageContainerGrandchild]}
+					styles={CHAKRA_PROPS.imageContainerGrandchild}
 					onClick={triggerOpenLightbox(3, onClick)}
 					thumb={thumbs[3]}
 				/>
-			</div>
-		</div>
+			</Box>
+		</Box>
 	);
 }
 
 function ThumbContainer(props: {
-	styles: SerializedStyles[];
+	styles: React.ComponentProps<typeof Box>;
 	onClick: (event: MouseEvent<HTMLDivElement, globalThis.MouseEvent>) => any;
 	thumb: t_thumb;
 }) {
 	const url = props.thumb.url.includes('name=') ? props.thumb.url : `${props.thumb.url}?name=360x360`;
 	return (
-		<div css={props.styles} onClick={props.onClick}>
+		<Box {...props.styles} onClick={props.onClick}>
 			<ImageAsBackground url={url} />
 			{props.thumb.isVideo && <OverlayPlayButton />}
-		</div>
+		</Box>
 	);
 }
 function ImageAsBackground(props: { url: string }) {
-	return <div style={{ backgroundImage: `url(${props.url})` }} css={styles.imageAsBackground}></div>;
+	return <Box {...CHAKRA_PROPS.imageAsBackground} backgroundImage={`url(${props.url})`}></Box>;
 }
 function OverlayPlayButton() {
 	return (
-		<div css={styles.overlayContainer}>
-			<div css={styles.playButtonBackground}>
+		<Box {...CHAKRA_PROPS.overlayContainer}>
+			<Box {...CHAKRA_PROPS.playButtonBackground}>
 				<IoMdPlay color={'#FFF'} size={36} style={{ width: 'calc(50% + 4px)', height: 'calc(50% + 4px)' }} />
-			</div>
-		</div>
+			</Box>
+		</Box>
 	);
 }
 
-const styles = {
-	container: css({
+const CHAKRA_PROPS = {
+	container: {
 		display: 'flex',
 		flexDirection: 'column',
 		position: 'relative',
 		width: '100%',
-	}),
-	imageContainerWrapper: css({
+	},
+	imageContainerWrapper: {
 		position: 'relative',
-	}),
+	},
 	//高さ
-	imagesContainerHeight: css({
+	imagesContainerHeight: {
 		display: 'flex',
 		paddingBottom: '56.1419%',
 		position: 'relative',
-		//width: '100%',
-	}),
-	imageContainer: css({
+	},
+	imageContainer: {
 		display: 'flex',
 		flexDirection: 'row',
 		position: 'absolute',
@@ -212,33 +210,33 @@ const styles = {
 		left: '0px',
 		height: '100%',
 		width: '100%',
-	}),
+	},
 	//子コンテナ。1枚でも2枚でも。
-	imageContainerChild: css({
+	imageContainerChild: {
 		display: 'flex',
 		flexDirection: 'column',
 		flexGrow: 1,
 		position: 'relative',
-	}),
+	},
 	//↑の左側
-	imageContainerChildLeft: css({
+	imageContainerChildLeft: {
 		display: 'flex',
-		marginRight: 2,
+		marginRight: '2px',
 		position: 'relative',
-	}),
+	},
 	//孫コンテナ。3枚以上の時に出現。
-	imageContainerGrandchild: css({
+	imageContainerGrandchild: {
 		display: 'flex',
 		flexGrow: 1,
 		position: 'relative',
-	}),
+	},
 	//↑の上側
-	imageContainerGrandchildTop: css({
+	imageContainerGrandchildTop: {
 		display: 'flex',
-		marginBottom: 2,
+		marginBottom: '2px',
 		position: 'relative',
-	}),
-	imageAsBackground: css({
+	},
+	imageAsBackground: {
 		display: 'flex',
 		backgroundSize: 'cover',
 		backgroundRepeat: 'no-repeat',
@@ -250,8 +248,8 @@ const styles = {
 		right: '0px',
 		bottom: '0px',
 		left: '0px',
-	}),
-	overlayContainer: css({
+	},
+	overlayContainer: {
 		display: 'flex',
 		position: 'absolute',
 		top: '0px',
@@ -261,19 +259,19 @@ const styles = {
 		justifyContent: 'center',
 		alignItems: 'center',
 		zIndex: 2,
-	}),
-	playButtonBackground: css({
-		width: 67,
-		height: 67,
+	},
+	playButtonBackground: {
+		width: '67px',
+		height: '67px',
 		backgroundColor: COLOR_LINK,
-		borderWidth: 4,
+		borderWidth: '4px',
 		borderColor: '#FFF',
 		borderStyle: 'solid',
-		borderRadius: 9999,
+		borderRadius: '9999px',
 		display: 'flex',
 		justifyContent: 'center',
 		alignItems: 'center',
 		pointerEvents: 'auto',
 		paddingLeft: '3px',
-	}),
-};
+	},
+} as const;

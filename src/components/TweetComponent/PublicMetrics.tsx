@@ -1,9 +1,8 @@
+import { Box, Flex } from '@chakra-ui/react';
 import React from 'react';
-/** @jsxImportSource @emotion/react */
-import { css } from '@emotion/react';
 import { AiOutlineHeart, AiOutlineRetweet } from 'react-icons/ai';
 import { VscComment } from 'react-icons/vsc';
-import { COLOR_SUBTEXT, SIZE_TEXT_M, SIZE_TEXT_S, SPACE_BASE } from './consts';
+import { SIZE_TEXT_M, SIZE_TEXT_S } from './consts';
 
 type P_publicMetrics = {
 	likes: number;
@@ -17,11 +16,11 @@ type P_publicMetrics = {
  */
 export default function PublicMetrics(props: P_publicMetrics) {
 	return (
-		<div css={styles.container}>
+		<Flex direction={'row'} wrap={'nowrap'} paddingBottom={'4px'}>
 			<Replies count={props.replies} />
 			<Retweets count={props.retweets + props.quotes} />
 			<Likes count={props.likes} />
-		</div>
+		</Flex>
 	);
 }
 
@@ -31,17 +30,17 @@ type P = {
 
 const Likes = (props: P) => (
 	<Base count={props.count}>
-		<AiOutlineHeart size={SIZE_TEXT_M} color={COLOR_SUBTEXT} />
+		<AiOutlineHeart size={SIZE_TEXT_M} />
 	</Base>
 );
 const Retweets = (props: P) => (
 	<Base count={props.count}>
-		<AiOutlineRetweet size={SIZE_TEXT_M} color={COLOR_SUBTEXT} />
+		<AiOutlineRetweet size={SIZE_TEXT_M} />
 	</Base>
 );
 const Replies = (props: P) => (
 	<Base count={props.count}>
-		<VscComment size={SIZE_TEXT_M} color={COLOR_SUBTEXT} />
+		<VscComment size={SIZE_TEXT_M} />
 	</Base>
 );
 
@@ -51,10 +50,14 @@ type P_base = P & {
 const Base = (props: P_base) => {
 	const count = valueFloor(props.count);
 	return (
-		<div css={styles.containerActions}>
-			<div css={styles.containerActionIcon}>{props.children}</div>
-			<span css={styles.actionCounts}>{count}</span>
-		</div>
+		<Flex className='subText' direction={'row'} marginRight={4} alignItems={'baseline'}>
+			<Flex direction={'row'} alignItems={'baseline'} width={'24px'} height={'32px'} position={'relative'} top={'2px'}>
+				{props.children}
+			</Flex>
+			<Box as={'span'} fontSize={`${SIZE_TEXT_S}px`} marginLeft={'4px'}>
+				{count}
+			</Box>
+		</Flex>
 	);
 };
 
@@ -68,32 +71,4 @@ const valueFloor = (value: number) => {
 		return Math.floor((value / 10000) * Math.pow(10, 1)) / Math.pow(10, 1) + '万';
 	}
 	return value;
-};
-
-const styles = {
-	container: css({
-		display: 'flex',
-		flexWrap: 'nowrap',
-		flexDirection: 'row',
-		paddingBottom: SPACE_BASE / 2,
-	}),
-	containerActions: css({
-		display: 'flex',
-		flexDirection: 'row',
-		marginRight: SPACE_BASE * 2,
-		alignItems: 'baseline',
-	}),
-	containerActionIcon: css({
-		width: SPACE_BASE * 3,
-		height: SPACE_BASE * 4,
-		display: 'flex',
-		alignItems: 'baseline',
-		position: 'relative',
-		top: 2,
-	}),
-	actionCounts: css({
-		fontSize: SIZE_TEXT_S,
-		color: COLOR_SUBTEXT,
-		marginLeft: SPACE_BASE / 2,
-	}),
 };

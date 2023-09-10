@@ -1,4 +1,4 @@
-import { Box, Button, Modal, ModalBody, ModalContent, ModalOverlay, useDisclosure, useToast } from '@chakra-ui/react';
+import { Box, Button, useDisclosure } from '@chakra-ui/react';
 import { differenceInCalendarDays } from 'date-fns';
 import * as Rb from 'rambda';
 import { useCallback, useRef, useState } from 'react';
@@ -11,8 +11,6 @@ import Zoom from 'yet-another-react-lightbox/plugins/zoom';
 import 'yet-another-react-lightbox/styles.css';
 import { t_storagedData } from '../../app/categories/smash/page';
 import { flattenUniq, uniqForShortArray } from '../../utilfuncs/array';
-import copyToClipboard from '../../utilfuncs/copyToClipboard';
-import { generateTweetUrl } from '../../utilfuncs/generateTweetUrl';
 import { addReadsToStorage, saveBlockedAccounts } from '../../utilfuncs/localStorages';
 import { intoYyyy_mm_dd, parseYyyy_mm_dd, t_reads } from '../../utilfuncs/reads';
 import {
@@ -24,8 +22,8 @@ import {
 	t_onImageGallery,
 	t_urls,
 } from '../TweetComponent/types';
-import DividedList from '../utilCompos/DividedList';
 import TweetListItem from './TweetListItem';
+import { TweetOptionModal } from './TweetOptionModal';
 import { t_blockedAccount } from './types';
 
 type t_lightboxImage =
@@ -318,76 +316,6 @@ const LoadingComponent = (props: { onLoad: () => void }) => {
 	);
 };
 
-function TweetOptionModal(
-	props: {
-		onClose: () => void;
-		isOpen: boolean;
-		onUnblock: (accountId: string) => void;
-		onBlock: (accountId: string) => void;
-	} & t_activatedTweetData,
-) {
-	const toast = useToast();
-	const _mergeOnClose = (call: Function) => () => {
-		call();
-		props.onClose();
-	};
-	const _decodeHtmlEntities = (text: string) =>
-		new DOMParser().parseFromString(text, 'text/html').documentElement.textContent ?? '';
-	const _showToast = (description: string) => {
-		toast({
-			//title: 'Account created.',
-			description: description,
-			status: 'success',
-			duration: 1500,
-			isClosable: true,
-		});
-	};
-	const twUrl = generateTweetUrl(props.authorData.screen_name, props.tweetData.tweet_id);
-	const items = [
-		{
-			title: '元の投稿へ',
-			onClick: () => window.open(twUrl),
-		},
-		{
-			title: 'URLをコピー',
-			onClick: () => {
-				copyToClipboard(twUrl);
-				_showToast(`コピーしました:\n${twUrl}`);
-			},
-		},
-		{
-			title: '本文とURLをコピー',
-			onClick: () => {
-				const text = _decodeHtmlEntities(
-					createNamesAndMainTextAndUrl(props.authorData, props.tweetData, twUrl, props.tweetData.others.medias ?? []),
-				);
-				copyToClipboard(text);
-				_showToast(`コピーしました:\n${text}`);
-			},
-		},
-		props.isBlockedAccount
-			? {
-					title: 'この投稿者の非表示を解除',
-					description: _decodeHtmlEntities(`${props.authorData.name}@${props.authorData.screen_name}`),
-					onClick: () => props.onUnblock(props.authorData.account_id),
-			  }
-			: {
-					title: 'この投稿者の投稿を非表示',
-					description: _decodeHtmlEntities(`${props.authorData.name}@${props.authorData.screen_name}`),
-					onClick: () => props.onBlock(props.authorData.account_id),
-			  },
-	].map((e) => ({ ...e, onClick: _mergeOnClose(e.onClick) }));
-	return (
-		<Modal onClose={props.onClose} isOpen={props.isOpen} isCentered>
-			<ModalOverlay />
-			<ModalContent>
-				<ModalBody padding={0}>
-					<DividedList itemProps={items} />
-				</ModalBody>
-			</ModalContent>
-		</Modal>
-	);
-}
 const createOriginalMainText = (text: string, urls: t_urls[]): string => {
 	return urls
 		.reduce((accumulator, currentValue) => {
@@ -396,7 +324,7 @@ const createOriginalMainText = (text: string, urls: t_urls[]): string => {
 		}, text)
 		.replace(/(https:\/\/t\.co\/\w+)/g, '');
 };
-const createNamesAndMainTextAndUrl = (
+export const createNamesAndMainTextAndUrl = (
 	authorData: t_dbAuthor,
 	tweetData: t_dbTweetDataParsed,
 	url: string,
@@ -435,7 +363,7 @@ const DUMMY_AUTHOR: t_dbAuthor = {
 const DUMMY_TWEET: t_dbTweetDataParsed = {
 	tweet_id: '0',
 	author_id: '0',
-	text: '?',
+	text: 'この投稿のデータを取得できませんでした。',
 	created_at: '0',
 	retweets: 0,
 	likes: 0,

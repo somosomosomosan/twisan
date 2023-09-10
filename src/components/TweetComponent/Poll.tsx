@@ -1,33 +1,56 @@
-/** @jsxImportSource @emotion/react */
-import { css } from '@emotion/react';
+import { Box, Flex, Text } from '@chakra-ui/react';
 import NoEscapeChakraText from '../utilCompos/NoEscapeChakraText';
 import { COLOR_LIGHTBLACK } from './consts';
 import { t_poll } from './types';
 
 export default function Poll(props: { polls: t_poll[] }) {
 	return (
-		<div css={styles.pollContainer}>
+		<Flex direction={'column'} grow={1} width='100%'>
 			{props.polls.map((e, i) => (
-				<div key={i} css={[styles.pollItem, i !== 0 && styles.pollItemNotTop]}>
-					<div css={styles.pollBorder}></div>
-					<div css={styles.pollTextContainer}>
+				<Flex
+					key={i}
+					direction={'row'}
+					justify={'space-between'}
+					align={'center'}
+					height={'32px'}
+					position={'relative'}
+					marginTop={i === 0 ? undefined : '4px'}
+				>
+					<Box
+						width={'7px'}
+						backgroundColor={'rgba(29, 155, 240, 0.58)'}
+						borderBottomLeftRadius={'4px'}
+						borderTopLeftRadius={'4px'}
+						position={'absolute'}
+						top={0}
+						left={0}
+						right={0}
+						bottom={0}
+					></Box>
+					<Box paddingLeft={'12px'} paddingRight={'12px'} width={'80%'} textAlign={'left'}>
 						<NoEscapeChakraText
 							text={e.label}
 							chakraProps={{
-								css: styles.pollTextAndValue,
+								...CHAKRA_PROPS_POLL_TEXT,
 								noOfLines: 1,
 							}}
 						/>
-					</div>
-					<div css={styles.pollValueContainer}>
-						<p css={styles.pollTextAndValue}>{e.votes}</p>
-					</div>
-				</div>
+					</Box>
+					<Box paddingLeft={'12px'}>
+						<Text {...CHAKRA_PROPS_POLL_TEXT}>{e.votes}</Text>
+					</Box>
+				</Flex>
 			))}
-		</div>
+		</Flex>
 	);
 }
 
+const CHAKRA_PROPS_POLL_TEXT = {
+	fontWeight: 'bold',
+	fontSize: '15px',
+	color: COLOR_LIGHTBLACK,
+};
+/*
 const styles = {
 	pollContainer: css({
 		display: 'flex',
@@ -73,3 +96,4 @@ const styles = {
 		paddingLeft: 12,
 	}),
 };
+*/

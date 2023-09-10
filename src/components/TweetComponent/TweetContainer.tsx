@@ -1,7 +1,16 @@
+import { Box, Flex, useColorModeValue } from '@chakra-ui/react';
+import { PATH_ASSETS } from '../../consts';
+import { generateTweetUrl } from '../../utilfuncs/generateTweetUrl';
+import Avatar from './Avatar';
+import CardLink from './CardLink';
 import CreatedAt from './CreatedAt';
 import ImageGallery from './ImageGallery';
+import { MainTextM, MainTextS } from './MainText';
+import { Name, NameAndScreenName, ScreenName } from './Name';
+import Poll from './Poll';
 import PublicMetrics from './PublicMetrics';
-import { COLOR_BORDER, SPACE_BASE, SPACE_BASE_M } from './consts';
+import ToTweetButton from './ToTweetButton';
+import { COLOR_BG_IN_DARKMODE, COLOR_BORDER } from './consts';
 import {
 	t_cardLink,
 	t_dbAuthor,
@@ -12,16 +21,6 @@ import {
 	t_poll,
 	t_urls,
 } from './types';
-/** @jsxImportSource @emotion/react */
-import { css } from '@emotion/react';
-import { PATH_ASSETS } from '../../consts';
-import { generateTweetUrl } from '../../utilfuncs/generateTweetUrl';
-import Avatar from './Avatar';
-import CardLink from './CardLink';
-import { MainTextM, MainTextS } from './MainText';
-import { Name, NameAndScreenName, ScreenName } from './Name';
-import Poll from './Poll';
-import ToTweetButton from './ToTweetButton';
 
 const DUMMY_AVATAR = `${PATH_ASSETS}/default_avatar.png`;
 const DUMMY_PICTURE = `${PATH_ASSETS}/dummy_icon_picture.png`;
@@ -38,28 +37,29 @@ export default function TweetContainer(props: {
 	const repId = getRepliedId(props.tweetData);
 	const qtId = getQtId(props.tweetData);
 	return (
-		<blockquote css={styles.container}>
+		<Box as={'blockquote'}>
 			{repId && (
 				<RepliedContainer
 					tweetId={repId}
+					conversationId={props.tweetData.others.conversation_id}
 					loadAuthorData={props.loadAuthorData}
 					loadTweetData={props.loadTweetData}
 					onImageGallery={props.onImageGallery}
 					noMedias={props.noMedias}
 				/>
 			)}
-			<div css={styles.parentContainer}>
+			<Box>
 				{repId && <ParentReplyBorder />}
 				{/* 最上部コンテナ 投稿者情報など */}
 				<TopContainer marginBottom={true}>
 					{/* アバター */}
-					<div css={styles.avatarWrapper}>
+					<Box marginRight={'12px'}>
 						<Avatar
 							url={props.noMedias ? DUMMY_AVATAR : props.authorData.profile_image_url}
 							size={'M'}
 							fallbackPicUrl={DUMMY_AVATAR}
 						/>
-					</div>
+					</Box>
 					{/* 名前 */}
 					<AuthorInfoTextContainer2Col
 						name={props.authorData.name}
@@ -103,8 +103,8 @@ export default function TweetContainer(props: {
 					replies={props.tweetData.replies}
 				/>
 				<ToTweetButton url={generateTweetUrl(props.authorData.screen_name, props.tweetData.tweet_id)} />
-			</div>
-		</blockquote>
+			</Box>
+		</Box>
 	);
 }
 
@@ -115,17 +115,20 @@ function QuotedContainer(props: {
 	onImageGallery: t_onImageGallery;
 	noMedias: boolean;
 }) {
+	const bgColor = useColorModeValue('#FFFFFF', COLOR_BG_IN_DARKMODE);
 	const tweetData = props.loadTweetData(props.tweetId);
-	if (tweetData.tweet_id === '0') {
-		return null;
-	}
 	const { text, created_at, others, tweet_id } = tweetData;
 	const authorData = props.loadAuthorData(tweetData.author_id);
 	const { name, screen_name, profile_image_url, verified } = authorData;
 
 	return (
-		<div css={[styles.attachmentContainer, styles.attachmentContainerBorder, styles.quoteContainer]}>
-			<div css={styles.quoteBodyContainer}>
+		<Flex
+			direction='column'
+			backgroundColor={bgColor}
+			{...CHAKRA_PROPS.attachmentContainer}
+			{...CHAKRA_PROPS.attachmentContainerBorder}
+		>
+			<Box padding={`12px 12px 0 12px`}>
 				{/* 最上部コンテナ 投稿者情報など */}
 				<TopContainer>
 					{/* アバター */}
@@ -142,7 +145,7 @@ function QuotedContainer(props: {
 				{/* <p>QT!</p> */}
 				{/* 本文 */}
 				<MainTextContainer text={text} size={'S'} urls={others.urls} marginVertical={true} />
-			</div>
+			</Box>
 			{/* アタッチメント 引用RTと他ではアタッチメントの表示の仕方が異なる*/}
 			<AttachmentContainer
 				medias={others.medias}
@@ -153,7 +156,7 @@ function QuotedContainer(props: {
 				onImageGallery={props.onImageGallery}
 				noMedias={props.noMedias}
 			/>
-		</div>
+		</Flex>
 	);
 }
 
@@ -190,13 +193,21 @@ function RepliedContainer(props: {
 	const qtId = getQtId(tweetData);
 
 	return (
-		<div css={[styles.parentContainer, flexRow]}>
-			<div css={flexCol}>
+		<Flex direction={'row'}>
+			<Flex direction={'column'}>
 				<Avatar url={props.noMedias ? DUMMY_AVATAR : profile_image_url} size={'M'} fallbackPicUrl={DUMMY_AVATAR} />
-				<div css={styles.reply2RowLeftBorder}></div>
-			</div>
+				<Flex
+					grow={1}
+					backgroundColor={COLOR_BORDER}
+					width={'2px'}
+					minHeight={'10ox'}
+					marginTop={'4px'}
+					marginRight={'auto'}
+					marginLeft={'auto'}
+				></Flex>
+			</Flex>
 
-			<div css={styles.replay2RowRightContainer}>
+			<Flex direction={'column'} grow={7} basis={0} marginLeft={'4px'} marginBottom={'12px'}>
 				<TopContainer>
 					{/* 名前、投稿時間 */}
 					<AuthorInfoTextContainer1Col
@@ -237,23 +248,26 @@ function RepliedContainer(props: {
 					quotes={tweetData.quotes}
 					replies={tweetData.replies}
 				/>
-			</div>
-		</div>
+			</Flex>
+		</Flex>
 	);
 }
 
 function TopContainer(props: { children: React.ReactNode; marginBottom?: boolean }) {
-	const marginBottom = props.marginBottom && { marginBottom: SPACE_BASE / 2 };
-	return <div css={[styles.topContainer, marginBottom]}>{props.children}</div>;
+	return (
+		<Flex direction={'row'} align={'center'} marginBottom={props.marginBottom ? '4px' : undefined}>
+			{props.children}
+		</Flex>
+	);
 }
 
 function AuthorInfoTextContainer2Col(props: { name: string; screenName: string; verified: boolean }) {
 	const { name, screenName, verified } = props;
 	return (
-		<div css={styles.tweetNameContainer2Col}>
+		<Flex direction={'column'} justify={'center'} margin={`0 4px 2px`}>
 			<Name name={name} verified={verified} />
 			<ScreenName screenName={screenName} />
-		</div>
+		</Flex>
 	);
 }
 
@@ -265,26 +279,26 @@ const AuthorInfoTextContainer1Col = (props: {
 }) => {
 	const { name, screenName, verified, createdAt } = props;
 	return (
-		<div css={[styles.nameCreatedAtContainer]}>
-			<div css={styles.nameContainer1Col}>
+		<Flex direction={'row'} width={'100%'} marginLeft={'4px'}>
+			<Flex direction={'row'} shrink={1} maxW={'70%'} overflow={'hidden'}>
 				<NameAndScreenName name={name} verified={verified} screenName={screenName} />
-			</div>
+			</Flex>
 			<span>&nbsp;·&nbsp;</span>
 			<CreatedAt createdAt={createdAt} includeTime={false} />
-		</div>
+		</Flex>
 	);
 };
 
 function MainTextContainer(props: { text: string; size: 'S' | 'M'; urls?: t_urls[]; marginVertical: boolean }) {
 	const { text, size, urls, marginVertical } = props;
 	const _marginVertical = marginVertical && {
-		marginBottom: SPACE_BASE_M,
-		marginTop: SPACE_BASE / 2,
+		marginBottom: '12px',
+		marginTop: '4px',
 	};
 	return (
-		<div css={_marginVertical}>
+		<Box {..._marginVertical}>
 			{size === 'S' ? <MainTextS text={text} urls={urls} /> : <MainTextM text={text} urls={urls} />}
-		</div>
+		</Box>
 	);
 }
 
@@ -300,29 +314,29 @@ function AttachmentContainer(props: {
 	const { medias, polls, cardLink, border, marginTop, noMedias } = props;
 	const onImageGallery = noMedias ? () => 0 : props.onImageGallery;
 
-	const borderStyle = border ? styles.attachmentContainerBorder : {};
-	const marginTopStyle = marginTop ? styles.attachmentContainer : {};
+	const borderStyle = border ? CHAKRA_PROPS.attachmentContainerBorder : {};
+	const marginTopStyle = marginTop ? CHAKRA_PROPS.attachmentContainer : {};
 	if (polls && polls.length > 0) {
 		return (
-			<div css={marginTopStyle}>
+			<Box {...marginTopStyle}>
 				<Poll polls={polls} />
-			</div>
+			</Box>
 		);
 	}
 
 	if (medias && medias.length > 0) {
 		return (
-			<div css={[borderStyle, marginTopStyle]}>
+			<Box {...borderStyle} {...marginTopStyle}>
 				<ImageGallery medias={noMedias ? replaceMediasDummies(medias) : medias} onImageGallery={onImageGallery} />
-			</div>
+			</Box>
 		);
 	}
 
 	if (cardLink && cardLink.photo_url) {
 		return (
-			<div css={[borderStyle, marginTopStyle]}>
+			<Box {...borderStyle} {...marginTopStyle}>
 				<CardLink {...cardLink} photo_url={noMedias ? DUMMY_PICTURE : cardLink.photo_url} />
-			</div>
+			</Box>
 		);
 	}
 	return null;
@@ -336,10 +350,10 @@ function BottomContainer(props: {
 	createdAt: string;
 }) {
 	return (
-		<div css={styles.bottomContainer}>
+		<Flex direction={'row'} justify={'space-between'} align={'baseline'} marginTop={'12px'}>
 			<PublicMetrics likes={props.likes} retweets={props.retweets} quotes={props.quotes} replies={props.replies} />
 			<CreatedAt createdAt={props.createdAt} includeTime={true} />
-		</div>
+		</Flex>
 	);
 }
 
@@ -350,40 +364,22 @@ function BottomContainer(props: {
  */
 function ParentReplyBorder() {
 	return (
-		<div css={flexRow}>
-			<div
-				css={css`
-					display: flex;
-					flex-basis: 40px;
-					flex-grow: 0;
-					margin-right: 12px;
-					margin-bottom: 4px;
-					position: relative;
-				`}
-			>
-				<div
-					css={css`
-						width: 2px;
-						background-color: rgb(207, 217, 222);
-						position: absolute;
-						top: 0;
-						bottom: 0;
-						right: 0;
-						left: 0;
-						margin-left: auto;
-						margin-right: auto;
-					`}
-				></div>
-			</div>
-			<div
-				css={css`
-					padding-top: 12px;
-					display: flex;
-					flex-basis: 0;
-					flex-grow: 1;
-				`}
-			></div>
-		</div>
+		<Flex direction={'row'}>
+			<Flex direction={'row'} basis={'40px'} grow={0} marginRight={'12px'} marginBottom={'4px'} position={'relative'}>
+				<Box
+					width={'2px'}
+					backgroundColor={'rgb(207, 217, 222)'}
+					position={'absolute'}
+					top={0}
+					bottom={0}
+					right={0}
+					left={0}
+					marginLeft={'auto'}
+					marginRight={'auto'}
+				></Box>
+			</Flex>
+			<Flex direction={'row'} basis={0} grow={1} paddingTop={'12px'}></Flex>
+		</Flex>
 	);
 }
 
@@ -398,103 +394,16 @@ function replaceMediasDummies(medias: (t_mediaPhoto | t_mediaVideo)[]): (t_media
 	return medias.map((e) => (e.type === 'photo' ? { ...e, url: DUMMY_PICTURE } : { ...e, photo_url: DUMMY_PICTURE }));
 }
 
-const flexRow = css({ display: 'flex', flexDirection: 'row' });
-const flexCol = css({ display: 'flex', flexDirection: 'column' });
-const styles = {
-	container: css({
-		/*
-		backgroundColor: '#FFF',
-		border: '1px solid #eee',
-		borderRadius: '0.5rem',
-		padding: '1rem',
-		*/
-	}),
-	parentContainer: css({
-		//paddingLeft: SPACE_BASE * 2,
-		//paddingRight: SPACE_BASE * 2,
-	}),
-
-	reply2RowLeftBorder: css({
-		width: 2,
-		minHeight: 10,
-		marginVertical: 4,
-		display: 'flex',
-		flexGrow: 1,
-		backgroundColor: COLOR_BORDER,
-		marginRight: 'auto',
-		marginLeft: 'auto',
-	}),
-	replay2RowRightContainer: css([
-		flexCol,
-		{
-			marginLeft: SPACE_BASE / 2,
-			marginBottom: SPACE_BASE_M,
-			flexGrow: 7,
-			flexBasis: 0,
-		},
-	]),
-	topContainer: css([
-		flexRow,
-		{
-			alignItems: 'center',
-		},
-	]),
-	tweetNameContainer2Col: css([
-		flexCol,
-		{
-			justifyContent: 'center',
-			margin: `0 ${SPACE_BASE / 2}px 2px`,
-		},
-	]),
-	avatarWrapper: css({
-		marginRight: SPACE_BASE_M,
-	}),
-	nameCreatedAtContainer: css([
-		flexRow,
-		{
-			width: '100%',
-			marginLeft: SPACE_BASE / 2,
-		},
-	]),
-	nameContainer1Col: css({
-		display: 'flex',
-		flexShrink: 1,
-		maxWidth: '70%',
-		overflow: 'hidden',
-	}),
-	attachmentContainer: css({
-		marginTop: SPACE_BASE_M,
-	}),
-	attachmentContainerBorder: css({
-		borderRadius: 16,
-		borderWidth: 1,
+const CHAKRA_PROPS = {
+	attachmentContainer: {
+		marginTop: '12px',
+	},
+	attachmentContainerBorder: {
+		borderRadius: '16px',
+		borderWidth: '1px',
 		borderStyle: 'solid',
 		borderColor: COLOR_BORDER,
 		overflow: 'hidden',
 		position: 'relative',
-	}),
-	quoteContainer: css([
-		flexCol,
-		{
-			backgroundColor: '#FFF',
-		},
-	]),
-	quoteBodyContainer: css({
-		padding: `${SPACE_BASE_M}px ${SPACE_BASE_M}px 0 ${SPACE_BASE_M}px`,
-	}),
-	bottomContainer: css([
-		flexRow,
-		{
-			justifyContent: 'space-between',
-			alignItems: 'baseline',
-			marginTop: SPACE_BASE_M,
-		},
-	]),
-	publicMetricsContainer: css([
-		flexRow,
-		{
-			flexWrap: 'nowrap',
-			paddingBottom: SPACE_BASE / 2,
-		},
-	]),
-};
+	},
+} as const;

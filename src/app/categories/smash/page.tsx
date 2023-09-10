@@ -1,4 +1,6 @@
 import {
+	Alert,
+	AlertIcon,
 	Box,
 	Button,
 	Card,
@@ -8,6 +10,7 @@ import {
 	Flex,
 	Heading,
 	Hide,
+	IconButton,
 	Link,
 	ListItem,
 	Menu,
@@ -19,26 +22,30 @@ import {
 	ModalContent,
 	ModalHeader,
 	ModalOverlay,
+	Select,
 	Stack,
 	Text,
+	Tooltip,
 	UnorderedList,
 	VStack,
+	useColorMode,
 	useDisclosure,
 } from '@chakra-ui/react';
 import { useQuery } from '@tanstack/react-query';
 import { format } from 'date-fns';
 import * as Rb from 'rambda';
-import { Suspense, useCallback, useState } from 'react';
+import { ChangeEvent, Suspense, useCallback, useState } from 'react';
 import { Helmet } from 'react-helmet-async';
-import { FaCheck, FaChevronDown } from 'react-icons/fa';
+import { FaCheck, FaChevronDown, FaMoon, FaSun } from 'react-icons/fa';
 import { MdOutlineTipsAndUpdates } from 'react-icons/md';
-import { COLOR_BORDER, COLOR_SUBTEXT } from '../../../components/TweetComponent/consts';
+import { useSearchParams } from 'react-router-dom';
+import { COLOR_BORDER, COLOR_LINK } from '../../../components/TweetComponent/consts';
 import { t_dbAuthor, t_dbTweetDataParsed, t_dbTweetScores } from '../../../components/TweetComponent/types';
 import TweetComponentList from '../../../components/TweetList/TweetComponentList';
 import { t_tweetViewStyleMode } from '../../../components/TweetList/TweetListItem';
 import { t_blockedAccount } from '../../../components/TweetList/types';
 import { READS_SAVE_DAYS, SITE_TITLE } from '../../../consts';
-import { getRankingData } from '../../../utilfuncs/getRankingData';
+import { getRankingData2, getRankingHistories, t_rankingHistory } from '../../../utilfuncs/getRankingData';
 import {
 	loadBlockedAccountsFromStorage,
 	loadReadsFromStorage,
@@ -50,6 +57,8 @@ import { removeReadsNDaysBeforeThenSave, t_reads } from '../../../utilfuncs/read
 
 const CATEGORY_NAME = 'smash';
 export default function PageSmash() {
+	const [searchParams, setSearchParams] = useSearchParams();
+	const rankingFileName = searchParams.get('r');
 	return (
 		<div>
 			<Helmet>
@@ -57,6 +66,7 @@ export default function PageSmash() {
 					{SITE_TITLE.smash} | {SITE_TITLE.base}
 				</title>
 			</Helmet>
+			{rankingFileName && <NotTheCurrentHistoryAlert categoryName={CATEGORY_NAME} />}
 			<Container maxW='100%' centerContent marginTop={4} marginBottom={4}>
 				<VStack spacing={4} align='stretch'>
 					<Heading
@@ -71,7 +81,7 @@ export default function PageSmash() {
 				</VStack>
 			</Container>
 			<Suspense fallback={<div>Loading...</div>}>
-				<LoaderWrapper />
+				<LoaderWrapper rankingFileName={rankingFileName} />
 			</Suspense>
 		</div>
 	);
@@ -95,24 +105,41 @@ export type t_storagedData = {
 	blockedAccounts: t_blockedAccount[];
 	readTweets: t_reads[];
 };
-function LoaderWrapper() {
+function LoaderWrapper(props: { rankingFileName: string | undefined | null }) {
 	const today = new Date();
+	/*
 	const { data } = useQuery({
 		queryKey: [CATEGORY_NAME],
 		queryFn: () => getRankingData(CATEGORY_NAME),
 	});
+	*/
+
+	const { data: rankingHistories } = useQuery({
+		queryKey: [`${CATEGORY_NAME}-histories`],
+		queryFn: () => getRankingHistories(CATEGORY_NAME),
+	});
+
+	const rankingFileInfo = props.rankingFileName
+		? rankingHistories?.find((e) => e.file_name === props.rankingFileName)
+		: rankingHistories?.[0];
+	const { data: rankingData } = useQuery({
+		queryKey: [`${CATEGORY_NAME}-ranking`],
+		queryFn: () => getRankingData2(CATEGORY_NAME, rankingFileInfo?.file_name ?? ''),
+	});
+
 	const blockedAccounts = loadBlockedAccountsFromStorage(CATEGORY_NAME);
 	const tweetViewStyleMode = loadTweetViewStyleMode();
 
 	return (
 		<Content
 			tweetViewStyleMode={tweetViewStyleMode}
-			scores={data?.scores ?? []}
-			tweets={data?.tweets ?? []}
-			authors={data?.authors ?? []}
+			scores={rankingData?.scores ?? []}
+			tweets={rankingData?.tweets ?? []}
+			authors={rankingData?.authors ?? []}
 			blockedAccounts={blockedAccounts}
 			today={today}
-			finishedScrapingDate={new Date(data?.finished ?? '')}
+			finishedScrapingDate={new Date(rankingFileInfo?.created_at ?? '')}
+			rankingHistories={rankingHistories ?? []}
 		/>
 	);
 }
@@ -122,6 +149,7 @@ function Content(
 		scores: t_dbTweetScores[];
 		today: Date;
 		finishedScrapingDate: Date;
+		rankingHistories: t_rankingHistory[];
 	},
 ) {
 	const { state_collapseRead, state_reads, onChangeCollapseReadsMode } = useReads(props.today);
@@ -138,13 +166,18 @@ function Content(
 			<Container maxW='100%' centerContent marginBottom={4}>
 				<VStack spacing={4}>
 					<Box>
-						<Text color={COLOR_SUBTEXT}>集計日時: {format(props.finishedScrapingDate, 'HH:mm · yyyy/MM/dd')}</Text>
-						<Text color={COLOR_SUBTEXT} fontSize={'sm'}>
+						<Text className='subText'>集計日時: {format(props.finishedScrapingDate, 'HH:mm · yyyy/MM/dd')}</Text>
+						<Text className='subText' fontSize={'sm'}>
 							1時間～1時間半毎に集計努力
 						</Text>
 					</Box>
 
+					<RankingHistoriesSelector rankingHistories={props.rankingHistories} />
+
 					<Hide below='lg'>
+						<Box position={'absolute'} top={0} right={0}>
+							<ColorSwitchButton />
+						</Box>
 						<OptionsForPc
 							isCollapseRead={state_collapseRead}
 							onChangeCollapseReadsMode={onChangeCollapseReadsMode}
@@ -157,7 +190,10 @@ function Content(
 						/>
 					</Hide>
 					<Hide above='lg'>
-						<TipsForMobile />
+						<Box position={'absolute'} top={20} right={0}>
+							<ColorSwitchButton />
+						</Box>
+
 						<OptionsForMobile
 							isCollapseRead={state_collapseRead}
 							onChangeCollapseReadsMode={onChangeCollapseReadsMode}
@@ -168,6 +204,7 @@ function Content(
 								window.location.reload();
 							}}
 						/>
+						<TipsForMobile />
 					</Hide>
 				</VStack>
 			</Container>
@@ -212,17 +249,105 @@ function Content(
 	);
 }
 
+function NotTheCurrentHistoryAlert(props: { categoryName: string }) {
+	return (
+		<Alert status='warning'>
+			<AlertIcon />
+			<Text>
+				最新の集計結果があります。
+				<Link color={COLOR_LINK} href={`./${props.categoryName}`}>
+					表示する
+				</Link>
+			</Text>
+		</Alert>
+	);
+}
+
+function RankingHistoriesSelector(props: { rankingHistories: t_rankingHistory[] }) {
+	const _getUrlWithoutQuery = () => {
+		return window.location.href.substring(0, window.location.href.indexOf('?'));
+	};
+	const _handleChange = useCallback((event: ChangeEvent<HTMLSelectElement>) => {
+		const fileName = event.target.value;
+		window.location.href = fileName === '' ? _getUrlWithoutQuery() : `?r=${fileName}`;
+	}, []);
+	return (
+		<Select placeholder='過去の集計結果' onChange={_handleChange}>
+			{props.rankingHistories.map((e, i) => (
+				<option key={e.file_name} value={i === 0 ? '' : e.file_name}>
+					{i === 0 ? `${e.file_name} (最新)` : e.file_name}
+				</option>
+			))}
+		</Select>
+	);
+}
+/*
+function RankingHistoriesModal() {
+	 const { isOpen, onOpen, onClose } = useDisclosure();
+	return (
+		<>
+			
+			<Modal onClose={props.onClose} isOpen={props.isOpen} isCentered>
+				<ModalOverlay />
+				<ModalContent>
+					<ModalBody padding={0}>
+						<DividedList itemProps={generateListItemsData({ ...props, onShowToast })} />
+					</ModalBody>
+				</ModalContent>
+			</Modal>
+		</>
+	);
+}*/
+
+function ColorSwitchButton() {
+	const { colorMode, toggleColorMode } = useColorMode();
+	const tooltipLabel = colorMode === 'light' ? 'ダークモードへ切り替えます' : 'ライトモードへ切り替えます';
+	return (
+		<Tooltip label={tooltipLabel}>
+			<IconButton
+				aria-label='change theme'
+				icon={colorMode === 'light' ? <FaMoon /> : <FaSun />}
+				onClick={toggleColorMode}
+			/>
+		</Tooltip>
+	);
+}
+
 function Tips(props: { isPc: boolean }) {
-	const clickText = props.isPc ? 'クリック' : 'タップ';
-	const viewModeGuideText = props.isPc ? '投稿表示設定' : '表示設定';
 	return (
 		<UnorderedList spacing={3}>
-			<ListItem>投稿を{clickText}するといろいろできます。</ListItem>
-			<ListItem>通信量が気になる方は、「{viewModeGuideText}」→「画像無し」をどうぞ。</ListItem>
-			<ListItem>データ収集精度はこれから徐々に良くなっていきます。</ListItem>
+			{TIPS_TEXT.map((e, i) => (
+				<ListItem key={i}>{props.isPc ? e.pc : e.mobile}</ListItem>
+			))}
 		</UnorderedList>
 	);
 }
+
+const TIPS_TEXT_CLICK_POST_PC = '投稿をクリックするといろいろできます。';
+const TIPS_TEXT_CLICK_POST_MOBILE = '投稿をタップするといろいろできます。';
+const TIP_TEXT_ABOUT_READS_PC =
+	'「既読を非表示」にすると、最近表示した投稿が非表示になります。※作動しない場合は一旦リロードしてみてください。';
+const TIP_TEXT_ABOUT_READS_MOBILE =
+	'「表示設定」→「既読を非表示」で、最近表示した投稿が非表示になります。※作動しない場合は一旦リロードしてみてください。';
+const TIPS_TEXT_NOIMAGE_PC = '通信量が気になる方は、「投稿表示設定」→「画像無し」をどうぞ。';
+const TIPS_TEXT_NOIMAGE_MOBILE = '通信量が気になる方は、「表示設定」→「画像無し」をどうぞ。';
+const TIPS_TEXT_MOTIVATION = 'データ収集精度はこれから徐々に良くなっていきます。';
+
+const TIPS_TEXT = [
+	{ pc: TIPS_TEXT_CLICK_POST_PC, mobile: TIPS_TEXT_CLICK_POST_MOBILE },
+	{
+		pc: TIP_TEXT_ABOUT_READS_PC,
+		mobile: TIP_TEXT_ABOUT_READS_MOBILE,
+	},
+	{
+		pc: TIPS_TEXT_NOIMAGE_PC,
+		mobile: TIPS_TEXT_NOIMAGE_MOBILE,
+	},
+	{
+		pc: TIPS_TEXT_MOTIVATION,
+		mobile: TIPS_TEXT_MOTIVATION,
+	},
+];
 
 function TipsForPc() {
 	return (

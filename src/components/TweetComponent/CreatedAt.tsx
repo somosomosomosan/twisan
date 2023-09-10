@@ -1,6 +1,6 @@
 import { Text } from '@chakra-ui/react';
 import { format } from 'date-fns';
-import { COLOR_SUBTEXT, SIZE_TEXT_S } from './consts';
+import { SIZE_TEXT_S } from './consts';
 type P = {
 	createdAt: string;
 	includeTime: boolean;
@@ -12,7 +12,7 @@ type P = {
  */
 export default function CreatedAt(props: P) {
 	return (
-		<Text color={COLOR_SUBTEXT} size={`${SIZE_TEXT_S}px`}>
+		<Text className={'subText'} size={`${SIZE_TEXT_S}px`}>
 			{props.includeTime
 				? format(new Date(props.createdAt), 'HH:mm · yyyy/MM/dd')
 				: format(new Date(props.createdAt), 'yyyy/MM/dd')}

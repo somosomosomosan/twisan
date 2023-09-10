@@ -1,9 +1,7 @@
-/** @jsxImportSource @emotion/react */
 import { Button } from '@chakra-ui/react';
 
 export default function ToTweetButton(props: { url: string }) {
 	return (
-		/* @ts-ignore */
 		<Button
 			colorScheme={'twitter'}
 			variant={'outline'}
