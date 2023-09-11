@@ -56,6 +56,10 @@ import {
 import { removeReadsNDaysBeforeThenSave, t_reads } from '../../../utilfuncs/reads';
 
 const CATEGORY_NAME = 'smash';
+
+const SPACE_V_STACK = 4;
+const PRIMARY_COLOR = 'teal';
+
 export default function PageSmash() {
 	const [searchParams, setSearchParams] = useSearchParams();
 	const rankingFileName = searchParams.get('r');
@@ -68,7 +72,7 @@ export default function PageSmash() {
 			</Helmet>
 			{rankingFileName && <NotTheCurrentHistoryAlert categoryName={CATEGORY_NAME} />}
 			<Container maxW='100%' centerContent marginTop={4} marginBottom={4}>
-				<VStack spacing={4} align='stretch'>
+				<VStack spacing={SPACE_V_STACK} align='stretch'>
 					<Heading
 						as='h1'
 						size='lg'
@@ -164,7 +168,7 @@ function Content(
 	return (
 		<Box>
 			<Container maxW='100%' centerContent marginBottom={4}>
-				<VStack spacing={4}>
+				<VStack spacing={SPACE_V_STACK}>
 					<Box>
 						<Text className='subText'>集計日時: {format(props.finishedScrapingDate, 'HH:mm · yyyy/MM/dd')}</Text>
 						<Text className='subText' fontSize={'sm'}>
@@ -233,7 +237,7 @@ function Content(
 						<Box
 						//position={'fixed'} maxW={'312px'} minW={'300px'} //固定化する場合はこれ
 						>
-							<VStack spacing={4}>
+							<VStack spacing={SPACE_V_STACK}>
 								<TipsForPc />
 								<LinksForPc />
 							</VStack>
@@ -272,7 +276,7 @@ function RankingHistoriesSelector(props: { rankingHistories: t_rankingHistory[] 
 		window.location.href = fileName === '' ? _getUrlWithoutQuery() : `?r=${fileName}`;
 	}, []);
 	return (
-		<Select placeholder='過去の集計結果' onChange={_handleChange}>
+		<Select colorScheme={PRIMARY_COLOR} placeholder='過去の集計結果' onChange={_handleChange}>
 			{props.rankingHistories.map((e, i) => (
 				<option key={e.file_name} value={i === 0 ? '' : e.file_name}>
 					{i === 0 ? `${e.file_name} (最新)` : e.file_name}
@@ -325,23 +329,20 @@ function Tips(props: { isPc: boolean }) {
 
 const TIPS_TEXT_CLICK_POST_PC = '投稿をクリックするといろいろできます。';
 const TIPS_TEXT_CLICK_POST_MOBILE = '投稿をタップするといろいろできます。';
-const TIP_TEXT_ABOUT_READS_PC =
+const TIP_TEXT_ABOUT_READS =
 	'「既読を非表示」にすると、最近表示した投稿が非表示になります。※作動しない場合は一旦リロードしてみてください。';
-const TIP_TEXT_ABOUT_READS_MOBILE =
-	'「表示設定」→「既読を非表示」で、最近表示した投稿が非表示になります。※作動しない場合は一旦リロードしてみてください。';
-const TIPS_TEXT_NOIMAGE_PC = '通信量が気になる方は、「投稿表示設定」→「画像無し」をどうぞ。';
-const TIPS_TEXT_NOIMAGE_MOBILE = '通信量が気になる方は、「表示設定」→「画像無し」をどうぞ。';
+const TIPS_TEXT_NOIMAGE = '通信量が気になる方は、「投稿表示設定」→「画像無し」をどうぞ。';
 const TIPS_TEXT_MOTIVATION = 'データ収集精度はこれから徐々に良くなっていきます。';
 
 const TIPS_TEXT = [
 	{ pc: TIPS_TEXT_CLICK_POST_PC, mobile: TIPS_TEXT_CLICK_POST_MOBILE },
 	{
-		pc: TIP_TEXT_ABOUT_READS_PC,
-		mobile: TIP_TEXT_ABOUT_READS_MOBILE,
+		pc: TIP_TEXT_ABOUT_READS,
+		mobile: TIP_TEXT_ABOUT_READS,
 	},
 	{
-		pc: TIPS_TEXT_NOIMAGE_PC,
-		mobile: TIPS_TEXT_NOIMAGE_MOBILE,
+		pc: TIPS_TEXT_NOIMAGE,
+		mobile: TIPS_TEXT_NOIMAGE,
 	},
 	{
 		pc: TIPS_TEXT_MOTIVATION,
@@ -405,9 +406,9 @@ function OptionsForPc(props: {
 }) {
 	return (
 		<Flex flexDirection={'column'}>
-			<Stack spacing={4} direction='row' justifyContent='center' marginBottom={4}>
+			<Stack spacing={SPACE_V_STACK} direction='row' justifyContent='center' marginBottom={4}>
 				<Menu>
-					<MenuButton as={Button} colorScheme='teal' size={'lg'} variant='outline'>
+					<MenuButton as={Button} colorScheme={PRIMARY_COLOR} size={'lg'} variant='outline'>
 						投稿表示設定
 					</MenuButton>
 					<MenuList>
@@ -415,7 +416,7 @@ function OptionsForPc(props: {
 							onClick={() => props.onChangeTweetViewStyleMode('CUSTOM')}
 							icon={props.tweetViewStyleMode === 'CUSTOM' ? <FaCheck /> : undefined}
 						>
-							軽量表示
+							普通
 						</MenuItem>
 						<MenuItem
 							onClick={() => props.onChangeTweetViewStyleMode('NO_MEDIAS')}
@@ -427,20 +428,25 @@ function OptionsForPc(props: {
 							onClick={() => props.onChangeTweetViewStyleMode('EMBED')}
 							icon={props.tweetViewStyleMode === 'EMBED' ? <FaCheck /> : undefined}
 						>
-							埋め込み表示
+							埋め込み
 						</MenuItem>
 					</MenuList>
 				</Menu>
-				<Button variant='outline' colorScheme='teal' size='lg' onClick={props.onChangeCollapseReadsMode}>
-					{props.isCollapseRead ? '既読を表示' : '既読を非表示'}
+				<Button
+					variant={props.isCollapseRead ? undefined : 'outline'}
+					colorScheme={PRIMARY_COLOR}
+					size='lg'
+					onClick={props.onChangeCollapseReadsMode}
+				>
+					既読を非表示
 				</Button>
 				{/*
-				<Button variant='outline' colorScheme='teal' size='lg'>
+				<Button variant='outline' colorScheme={PRIMARY_COLOR} size='lg'>
 					非表示アカウント設定
 				</Button>
 				*/}
 			</Stack>
-			<Stack spacing={4} direction='row' justifyContent='center'></Stack>
+			<Stack spacing={SPACE_V_STACK} direction='row' justifyContent='center'></Stack>
 		</Flex>
 	);
 }
@@ -453,16 +459,26 @@ function OptionsForMobile(props: {
 }) {
 	return (
 		<Menu>
-			<MenuButton as={Button} colorScheme='teal' size={'lg'} variant='outline' rightIcon={<FaChevronDown />}>
-				表示設定
-			</MenuButton>
+			<VStack spacing={SPACE_V_STACK}>
+				<MenuButton as={Button} colorScheme={PRIMARY_COLOR} size={'lg'} variant='outline' rightIcon={<FaChevronDown />}>
+					投稿表示設定
+				</MenuButton>
+				<Button
+					variant={props.isCollapseRead ? undefined : 'outline'}
+					colorScheme={PRIMARY_COLOR}
+					size='md'
+					onClick={props.onChangeCollapseReadsMode}
+				>
+					既読を非表示
+				</Button>
+			</VStack>
 
 			<MenuList>
 				<MenuItem
 					onClick={() => props.onChangeTweetViewStyleMode('CUSTOM')}
 					icon={props.tweetViewStyleMode === 'CUSTOM' ? <FaCheck /> : undefined}
 				>
-					軽量表示
+					普通
 				</MenuItem>
 				<MenuItem
 					onClick={() => props.onChangeTweetViewStyleMode('NO_MEDIAS')}
@@ -474,10 +490,7 @@ function OptionsForMobile(props: {
 					onClick={() => props.onChangeTweetViewStyleMode('EMBED')}
 					icon={props.tweetViewStyleMode === 'EMBED' ? <FaCheck /> : undefined}
 				>
-					埋め込み表示
-				</MenuItem>
-				<MenuItem onClick={props.onChangeCollapseReadsMode}>
-					{props.isCollapseRead ? '既読を表示' : '既読を非表示'}
+					埋め込み
 				</MenuItem>
 				{/*
 				<MenuItem as='a' href='#'>
