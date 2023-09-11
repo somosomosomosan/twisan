@@ -61,5 +61,10 @@
 		"@types/react-gtm-module": "^2.0.1",
 		"@types/react-infinite-scroller": "^1.2.3",
 		"typescript": "^5.2.2"
+	},
+	"overrides": {
+		"react-scripts": {
+			"typescript": "^5"
+		}
 	}
 }
