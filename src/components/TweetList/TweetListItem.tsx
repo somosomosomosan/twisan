@@ -1,10 +1,11 @@
 import { Box, Flex, useColorModeValue } from '@chakra-ui/react';
 import React, { useCallback } from 'react';
+import { FaCheck } from 'react-icons/fa';
 import { InView } from 'react-intersection-observer';
 import EmbedTweetComponent from '../EmbedTweetComponent';
 import TweetContainer from '../TweetComponent/TweetContainer';
 import TweetContainerCollapsed from '../TweetComponent/TweetContainerCollapsed';
-import { COLOR_BORDER } from '../TweetComponent/consts';
+import { COLOR_BORDER, SIZE_TEXT_XS } from '../TweetComponent/consts';
 import { t_dbAuthor, t_dbTweetDataParsed, t_onImageGallery } from '../TweetComponent/types';
 import TouchableHighlight from '../utilCompos/TouchableHighlight';
 import Rank from './Rank';
@@ -14,14 +15,10 @@ import { t_activatedTweetData } from './TweetComponentList';
 export type t_tweetViewStyleMode = 'CUSTOM' | 'EMBED' | 'NO_MEDIAS';
 
 export default React.memo(TweetListItem, (prevProps, nextProps) => {
-	console.log({
-		readPrev: prevProps.isRead,
-		readNext: nextProps.isRead,
-		text: nextProps.tweetData.text,
-	});
 	return (
 		prevProps.tweetViewStyleMode === nextProps.tweetViewStyleMode &&
 		prevProps.isBlockedAccount === nextProps.isBlockedAccount &&
+		prevProps.isCollapseReadMode === nextProps.isCollapseReadMode &&
 		prevProps.isRead === nextProps.isRead &&
 		prevProps.isReexpanded === nextProps.isReexpanded
 	);
@@ -33,6 +30,7 @@ function TweetListItem({
 	authorData,
 	tweetData,
 	isBlockedAccount,
+	isCollapseReadMode,
 	isRead,
 	isReexpanded,
 	loadAuthorData,
@@ -48,6 +46,7 @@ function TweetListItem({
 	authorData: t_dbAuthor;
 	tweetData: t_dbTweetDataParsed;
 	isBlockedAccount: boolean;
+	isCollapseReadMode: boolean;
 	isRead: boolean;
 	isReexpanded: boolean;
 	loadAuthorData: (authorId: string) => t_dbAuthor;
@@ -66,9 +65,9 @@ function TweetListItem({
 			}),
 		[isBlockedAccount],
 	);
-	const collapseBgColor = useColorModeValue('#FFEDFC', '#222c38');
+	const collapseBgColor = useColorModeValue('#FEEBC8', '#222c38');
 
-	const blockedOrRead = isBlockedAccount || isRead;
+	const blockedOrRead = isBlockedAccount || (isCollapseReadMode && isRead);
 
 	const collapsed = blockedOrRead && !isReexpanded;
 	return (
@@ -89,6 +88,11 @@ function TweetListItem({
 				<Box marginLeft={'8px'}>
 					<Score score={score} />
 				</Box>
+				{isRead && !collapsed && (
+					<Flex flexDirection={'row-reverse'} flexGrow={1}>
+						<FaCheck size={`${SIZE_TEXT_XS}px`} color={COLOR_BORDER} />
+					</Flex>
+				)}
 			</Flex>
 
 			{collapsed ? (

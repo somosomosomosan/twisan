@@ -45,7 +45,6 @@ function mainText(text: string, urls: t_urls[] | undefined) {
 }
 
 function wrapWithP(text: string | ReactNode[]) {
-	console.log({ text: text });
 	return reactStringReplace(text, /(.*)/gs, (match, i) => (
 		<span css={styles.para} key={match + randomNum()} dangerouslySetInnerHTML={{ __html: match }}></span>
 	));

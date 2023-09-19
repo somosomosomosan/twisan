@@ -14,8 +14,8 @@ const queryClient = new QueryClient({
 		queries: {
 			suspense: true,
 			refetchOnWindowFocus: false,
-			cacheTime: 1,
-			staleTime: 1,
+			cacheTime: 1000 * 60 * 10, //キャッシュ破棄時間
+			staleTime: 1000 * 60 * 5, //キャッシュ流用時間 5分
 		},
 	},
 });

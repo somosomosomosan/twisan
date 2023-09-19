@@ -32,7 +32,7 @@ import {
 	useDisclosure,
 } from '@chakra-ui/react';
 import { useQuery } from '@tanstack/react-query';
-import { format } from 'date-fns';
+import { differenceInHours, format } from 'date-fns';
 import * as Rb from 'rambda';
 import { ChangeEvent, Suspense, useCallback, useState } from 'react';
 import { Helmet } from 'react-helmet-async';
@@ -44,7 +44,7 @@ import { t_dbAuthor, t_dbTweetDataParsed, t_dbTweetScores } from '../../../compo
 import TweetComponentList from '../../../components/TweetList/TweetComponentList';
 import { t_tweetViewStyleMode } from '../../../components/TweetList/TweetListItem';
 import { t_blockedAccount } from '../../../components/TweetList/types';
-import { READS_SAVE_DAYS, SITE_TITLE } from '../../../consts';
+import { DETECT_STOPPING_SCRAPING_HOUR, READS_SAVE_DAYS, SITE_TITLE } from '../../../consts';
 import { getRankingData2, getRankingHistories, t_rankingHistory } from '../../../utilfuncs/getRankingData';
 import {
 	loadBlockedAccountsFromStorage,
@@ -110,7 +110,6 @@ export type t_storagedData = {
 	readTweets: t_reads[];
 };
 function LoaderWrapper(props: { rankingFileName: string | undefined | null }) {
-	const today = new Date();
 	/*
 	const { data } = useQuery({
 		queryKey: [CATEGORY_NAME],
@@ -121,6 +120,8 @@ function LoaderWrapper(props: { rankingFileName: string | undefined | null }) {
 	const { data: rankingHistories } = useQuery({
 		queryKey: [`${CATEGORY_NAME}-histories`],
 		queryFn: () => getRankingHistories(CATEGORY_NAME),
+		cacheTime: 1,
+		staleTime: 1,
 	});
 
 	const rankingFileInfo = props.rankingFileName
@@ -133,6 +134,13 @@ function LoaderWrapper(props: { rankingFileName: string | undefined | null }) {
 
 	const blockedAccounts = loadBlockedAccountsFromStorage(CATEGORY_NAME);
 	const tweetViewStyleMode = loadTweetViewStyleMode();
+	const finishedScrapingDate = new Date(rankingFileInfo?.created_at ?? '');
+	const today = new Date();
+	const isLooksLikeStoppingScraping = props.rankingFileName
+		? false
+		: differenceInHours(today, finishedScrapingDate) > DETECT_STOPPING_SCRAPING_HOUR
+		? true
+		: false;
 
 	return (
 		<Content
@@ -142,8 +150,9 @@ function LoaderWrapper(props: { rankingFileName: string | undefined | null }) {
 			authors={rankingData?.authors ?? []}
 			blockedAccounts={blockedAccounts}
 			today={today}
-			finishedScrapingDate={new Date(rankingFileInfo?.created_at ?? '')}
+			finishedScrapingDate={finishedScrapingDate}
 			rankingHistories={rankingHistories ?? []}
+			isLooksLikeStoppingScraping={isLooksLikeStoppingScraping}
 		/>
 	);
 }
@@ -154,6 +163,7 @@ function Content(
 		today: Date;
 		finishedScrapingDate: Date;
 		rankingHistories: t_rankingHistory[];
+		isLooksLikeStoppingScraping: boolean;
 	},
 ) {
 	const { state_collapseRead, state_reads, onChangeCollapseReadsMode } = useReads(props.today);
@@ -164,7 +174,6 @@ function Content(
 		set_chunkedScores(chunkScore(props.scores, state_tweetViewStyleMode));
 	}, [props.scores, state_tweetViewStyleMode]);
 	*/
-
 	return (
 		<Box>
 			<Container maxW='100%' centerContent marginBottom={4}>
@@ -174,6 +183,15 @@ function Content(
 						<Text className='subText' fontSize={'sm'}>
 							1時間～1時間半毎に集計努力
 						</Text>
+						{props.isLooksLikeStoppingScraping && (
+							<Alert status='error'>
+								<AlertIcon />
+								<Text>
+									現在、何らかの事情により集計が行われていません。
+									<MyTwitter />
+								</Text>
+							</Alert>
+						)}
 					</Box>
 
 					<RankingHistoriesSelector rankingHistories={props.rankingHistories} />
@@ -194,7 +212,7 @@ function Content(
 						/>
 					</Hide>
 					<Hide above='lg'>
-						<Box position={'absolute'} top={20} right={0}>
+						<Box position={'absolute'} top={'150px'} right={0}>
 							<ColorSwitchButton />
 						</Box>
 
@@ -329,16 +347,21 @@ function Tips(props: { isPc: boolean }) {
 
 const TIPS_TEXT_CLICK_POST_PC = '投稿をクリックするといろいろできます。';
 const TIPS_TEXT_CLICK_POST_MOBILE = '投稿をタップするといろいろできます。';
-const TIP_TEXT_ABOUT_READS =
-	'「既読を非表示」にすると、最近表示した投稿が非表示になります。※作動しない場合は一旦リロードしてみてください。';
+const TIP_TEXT_ABOUT_READS_COLLAPSE =
+	'「既読を非表示」にすると、最近表示したことのある投稿が非表示になります。※作動しない場合は一旦リロードしてみてください。';
+const TIP_TEXT_ABOUT_READS_CHECKMARK = '最近表示したことのあるツイートには右上にチェックマークが表示されます';
 const TIPS_TEXT_NOIMAGE = '通信量が気になる方は、「投稿表示設定」→「画像無し」をどうぞ。';
 const TIPS_TEXT_MOTIVATION = 'データ収集精度はこれから徐々に良くなっていきます。';
 
 const TIPS_TEXT = [
 	{ pc: TIPS_TEXT_CLICK_POST_PC, mobile: TIPS_TEXT_CLICK_POST_MOBILE },
 	{
-		pc: TIP_TEXT_ABOUT_READS,
-		mobile: TIP_TEXT_ABOUT_READS,
+		pc: TIP_TEXT_ABOUT_READS_CHECKMARK,
+		mobile: TIP_TEXT_ABOUT_READS_CHECKMARK,
+	},
+	{
+		pc: TIP_TEXT_ABOUT_READS_COLLAPSE,
+		mobile: TIP_TEXT_ABOUT_READS_COLLAPSE,
 	},
 	{
 		pc: TIPS_TEXT_NOIMAGE,
@@ -369,9 +392,12 @@ function LinksForPc() {
 	return (
 		<Card textAlign={'left'} marginLeft={'24px'} width={'100%'} variant={'outline'}>
 			<CardBody>
-				<Link fontSize={12} href={'https://somosomosomosan.github.io/texttoimage/'} isExternal>
-					文章画像化ツール
-				</Link>
+				<VStack spacing={SPACE_V_STACK} fontSize={12} align={'flex-start'}>
+					<Link color={COLOR_LINK} href={'https://somosomosomosan.github.io/texttoimage/'} isExternal>
+						文章画像化ツール
+					</Link>
+					<MyTwitter />
+				</VStack>
 			</CardBody>
 		</Card>
 	);
@@ -533,4 +559,12 @@ function setupReads(categoryName: string, today: Date) {
 	const savedReadsRemovedTooOlds = removeReadsNDaysBeforeThenSave(savedReads, today, READS_SAVE_DAYS);
 	saveReadsToStorage(categoryName, savedReadsRemovedTooOlds);
 	return savedReadsRemovedTooOlds;
+}
+
+function MyTwitter() {
+	return (
+		<Link color={COLOR_LINK} href={'https://twitter.com/twicrbot_ssbu'} target={'_blank'}>
+			運営者Twitter
+		</Link>
+	);
 }

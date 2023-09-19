@@ -1,6 +1,7 @@
 import { Box, Flex, useColorModeValue } from '@chakra-ui/react';
 import { PATH_ASSETS } from '../../consts';
 import { generateTweetUrl } from '../../utilfuncs/generateTweetUrl';
+import { DUMMY_TWEET } from '../TweetList/TweetComponentList';
 import Avatar from './Avatar';
 import CardLink from './CardLink';
 import CreatedAt from './CreatedAt';
@@ -36,12 +37,14 @@ export default function TweetContainer(props: {
 }) {
 	const repId = getRepliedId(props.tweetData);
 	const qtId = getQtId(props.tweetData);
+	const { text, created_at, others, tweet_id, likes, retweets, quotes, replies } =
+		turnTweetDataIntoDummyIfTheAuthorIsProtected(props.tweetData, props.authorData);
 	return (
 		<Box as={'blockquote'}>
 			{repId && (
 				<RepliedContainer
 					tweetId={repId}
-					conversationId={props.tweetData.others.conversation_id}
+					conversationId={others.conversation_id}
 					loadAuthorData={props.loadAuthorData}
 					loadTweetData={props.loadTweetData}
 					onImageGallery={props.onImageGallery}
@@ -67,20 +70,15 @@ export default function TweetContainer(props: {
 						screenName={props.authorData.screen_name}
 					/>
 				</TopContainer>
-				{/* <p>{props.tweetData.tweet_id}</p> */}
+				{/* <p>{tweet_id}</p> */}
 
 				{/* 本文 */}
-				<MainTextContainer
-					text={props.tweetData.text}
-					urls={props.tweetData.others.urls}
-					size={'M'}
-					marginVertical={false}
-				/>
+				<MainTextContainer text={text} urls={others.urls} size={'M'} marginVertical={false} />
 				{/* アタッチメント */}
 				<AttachmentContainer
-					medias={props.tweetData.others.medias}
-					polls={props.tweetData.others.polls}
-					cardLink={props.tweetData.others.card_link}
+					medias={others.medias}
+					polls={others.polls}
+					cardLink={others.card_link}
 					border={true}
 					marginTop={true}
 					onImageGallery={props.onImageGallery}
@@ -95,14 +93,8 @@ export default function TweetContainer(props: {
 						noMedias={props.noMedias}
 					/>
 				)}
-				<BottomContainer
-					createdAt={props.tweetData.created_at}
-					likes={props.tweetData.likes}
-					retweets={props.tweetData.retweets}
-					quotes={props.tweetData.quotes}
-					replies={props.tweetData.replies}
-				/>
-				<ToTweetButton url={generateTweetUrl(props.authorData.screen_name, props.tweetData.tweet_id)} />
+				<BottomContainer createdAt={created_at} likes={likes} retweets={retweets} quotes={quotes} replies={replies} />
+				<ToTweetButton url={generateTweetUrl(props.authorData.screen_name, tweet_id)} />
 			</Box>
 		</Box>
 	);
@@ -117,9 +109,9 @@ function QuotedContainer(props: {
 }) {
 	const bgColor = useColorModeValue('#FFFFFF', COLOR_BG_IN_DARKMODE);
 	const tweetData = props.loadTweetData(props.tweetId);
-	const { text, created_at, others, tweet_id } = tweetData;
 	const authorData = props.loadAuthorData(tweetData.author_id);
 	const { name, screen_name, profile_image_url, verified } = authorData;
+	const { text, created_at, others, tweet_id } = turnTweetDataIntoDummyIfTheAuthorIsProtected(tweetData, authorData);
 
 	return (
 		<Flex
@@ -183,13 +175,14 @@ function RepliedContainer(props: {
 		//console.log('conversation! - ' + props.conversationId);
 		return props.loadTweetData(props.conversationId ?? '');
 	};
+
 	const tweetData = _loadTweetData();
 	if (tweetData.tweet_id === '0') {
 		return null;
 	}
-	const { text, created_at, others, tweet_id } = tweetData;
 	const authorData = props.loadAuthorData(tweetData.author_id);
 	const { name, screen_name, profile_image_url, verified } = authorData;
+	const { text, created_at, others, tweet_id } = turnTweetDataIntoDummyIfTheAuthorIsProtected(tweetData, authorData);
 	const qtId = getQtId(tweetData);
 
 	return (
@@ -261,7 +254,7 @@ function TopContainer(props: { children: React.ReactNode; marginBottom?: boolean
 	);
 }
 
-function AuthorInfoTextContainer2Col(props: { name: string; screenName: string; verified: boolean }) {
+function AuthorInfoTextContainer2Col(props: { name: string; screenName: string; verified?: boolean }) {
 	const { name, screenName, verified } = props;
 	return (
 		<Flex direction={'column'} justify={'center'} margin={`0 4px 2px`}>
@@ -274,7 +267,7 @@ function AuthorInfoTextContainer2Col(props: { name: string; screenName: string; 
 const AuthorInfoTextContainer1Col = (props: {
 	name: string;
 	screenName: string;
-	verified: boolean;
+	verified?: boolean;
 	createdAt: string;
 }) => {
 	const { name, screenName, verified, createdAt } = props;
@@ -392,6 +385,24 @@ function getQtId(tweetData: t_dbTweetDataParsed): string | undefined {
 
 function replaceMediasDummies(medias: (t_mediaPhoto | t_mediaVideo)[]): (t_mediaPhoto | t_mediaVideo)[] {
 	return medias.map((e) => (e.type === 'photo' ? { ...e, url: DUMMY_PICTURE } : { ...e, photo_url: DUMMY_PICTURE }));
+}
+
+function turnTweetDataIntoDummyIfTheAuthorIsProtected(
+	tweetData: t_dbTweetDataParsed,
+	authorData: t_dbAuthor,
+): t_dbTweetDataParsed {
+	return authorData.protected
+		? {
+				...tweetData,
+				text: DUMMY_TWEET.text,
+				others: {
+					urls: undefined,
+					card_link: undefined,
+					medias: undefined,
+					polls: undefined,
+				},
+		  }
+		: tweetData;
 }
 
 const CHAKRA_PROPS = {

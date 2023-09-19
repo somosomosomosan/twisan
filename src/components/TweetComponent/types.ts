@@ -73,7 +73,8 @@ export type t_dbAuthor = {
 	//スクリーンネーム
 	screen_name: string;
 	//SQLiteにはbooleanは格納できないので数値化する必要がある
-	verified: boolean;
+	verified?: boolean;
+	protected?: boolean;
 };
 
 export type t_dbTweetScores = {
