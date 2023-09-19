@@ -55,7 +55,6 @@ export default function TweetComponentList(
 		getAuthorData,
 	);
 	const { addTodayReads } = useTodaysReads(props.categoryName, props.readTweets, props.today);
-
 	return (
 		<Box>
 			<Lightbox
@@ -90,7 +89,7 @@ export default function TweetComponentList(
 						getTweetData,
 						getAuthorData,
 						state_blockedAccounts,
-						props.collapseRead ? getReadTweetIds() : [],
+						getReadTweetIds(),
 						state_reexpandedTweets,
 					);
 					return (
@@ -104,6 +103,7 @@ export default function TweetComponentList(
 							loadAuthorData={getAuthorData}
 							loadTweetData={getTweetData}
 							isBlockedAccount={data.isNgAccount}
+							isCollapseReadMode={props.collapseRead}
 							isRead={data.isRead}
 							isReexpanded={data.isReexpanded}
 							onImageGallery={setImagesAndOpenLightbox}
@@ -270,7 +270,7 @@ function useTodaysReads(categoryName: string, readTweets: t_reads[], today: Date
 			});
 		},
 		// delay in ms
-		2000,
+		1000,
 	);
 
 	return {
@@ -358,9 +358,8 @@ const DUMMY_AUTHOR: t_dbAuthor = {
 	name: '?',
 	profile_image_url: '',
 	screen_name: '?',
-	verified: false,
 };
-const DUMMY_TWEET: t_dbTweetDataParsed = {
+export const DUMMY_TWEET: t_dbTweetDataParsed = {
 	tweet_id: '0',
 	author_id: '0',
 	text: 'この投稿のデータを取得できませんでした。',
