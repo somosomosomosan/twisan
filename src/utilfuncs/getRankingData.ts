@@ -27,14 +27,17 @@ export async function getRankingData(catName: string): Promise<t_dataRanking> {
 	return response.json() as Promise<t_dataRanking>;
 }
 
-export async function getRankingData2(catName: string, fileName: string): Promise<t_dataRanking> {
+export async function getRankingData2(catName: string, fileName: string): Promise<t_dataRanking | null> {
 	const filePath = `${PATH_RANKING_DATA}/${catName}/${fileName}.json`;
 	//fetch() は Promise を返す（返り値を変数に代入する場合）
 	const response = await fetch(filePath);
 	if (!response.ok) {
-		throw new Error('????????');
+		return null;
 	}
-	return response.json() as Promise<t_dataRanking>;
+	const r = response.json().catch((e) => {
+		return null;
+	}) as Promise<t_dataRanking>;
+	return r;
 }
 
 export async function getRankingHistories(catName: string): Promise<t_rankingHistory[]> {

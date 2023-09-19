@@ -127,10 +127,15 @@ function LoaderWrapper(props: { rankingFileName: string | undefined | null }) {
 	const rankingFileInfo = props.rankingFileName
 		? rankingHistories?.find((e) => e.file_name === props.rankingFileName)
 		: rankingHistories?.[0];
+
 	const { data: rankingData } = useQuery({
 		queryKey: [`${CATEGORY_NAME}-ranking`],
 		queryFn: () => getRankingData2(CATEGORY_NAME, rankingFileInfo?.file_name ?? ''),
 	});
+
+	if (!rankingData) {
+		return <NoRankingData />;
+	}
 
 	const blockedAccounts = loadBlockedAccountsFromStorage(CATEGORY_NAME);
 	const tweetViewStyleMode = loadTweetViewStyleMode();
@@ -155,6 +160,10 @@ function LoaderWrapper(props: { rankingFileName: string | undefined | null }) {
 			isLooksLikeStoppingScraping={isLooksLikeStoppingScraping}
 		/>
 	);
+}
+
+function NoRankingData() {
+	return <div>その日付の集計データはありません。</div>;
 }
 
 function Content(
