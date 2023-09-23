@@ -409,7 +409,7 @@ function LinksForPc() {
 					<Link color={COLOR_LINK} href={'https://somosomosomosan.github.io/texttoimage/'} isExternal>
 						文章画像化ツール
 					</Link>
-					{/* <MyTwitter /> */}
+					<MyTwitter />
 				</VStack>
 			</CardBody>
 		</Card>
