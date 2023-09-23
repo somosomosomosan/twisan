@@ -6,6 +6,11 @@ export const READS_SAVE_DAYS = 3;
 export const DETECT_STOPPING_SCRAPING_HOUR = 2;
 
 export const SITE_TITLE = {
-	base: '●● Global Rankings',
-	smash: 'スマブラ',
+	base: '', //●● Global Rankings
+	smash: 'スマブラ', //スマブラ
+};
+
+export const SITE_DESCRIPTION = {
+	smash1: 'X(Twitter)のスマブラアカウントの間で',
+	smash2: '最近話題の投稿集',
 };

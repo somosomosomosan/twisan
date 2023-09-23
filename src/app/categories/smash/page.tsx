@@ -44,7 +44,7 @@ import { t_dbAuthor, t_dbTweetDataParsed, t_dbTweetScores } from '../../../compo
 import TweetComponentList from '../../../components/TweetList/TweetComponentList';
 import { t_tweetViewStyleMode } from '../../../components/TweetList/TweetListItem';
 import { t_blockedAccount } from '../../../components/TweetList/types';
-import { DETECT_STOPPING_SCRAPING_HOUR, READS_SAVE_DAYS, SITE_TITLE } from '../../../consts';
+import { DETECT_STOPPING_SCRAPING_HOUR, READS_SAVE_DAYS, SITE_DESCRIPTION, SITE_TITLE } from '../../../consts';
 import { getRankingData2, getRankingHistories, t_rankingHistory } from '../../../utilfuncs/getRankingData';
 import {
 	loadBlockedAccountsFromStorage,
@@ -67,8 +67,9 @@ export default function PageSmash() {
 		<div>
 			<Helmet>
 				<title>
-					{SITE_TITLE.smash} | {SITE_TITLE.base}
+					{SITE_TITLE.smash} {SITE_TITLE.base}
 				</title>
+				<meta name='description' content={`${SITE_DESCRIPTION.smash1}${SITE_DESCRIPTION.smash2}`} />
 			</Helmet>
 			{rankingFileName && <NotTheCurrentHistoryAlert categoryName={CATEGORY_NAME} />}
 			<Container maxW='100%' centerContent marginTop={4} marginBottom={4}>
@@ -79,9 +80,12 @@ export default function PageSmash() {
 						noOfLines={1}
 						fontFamily={`Meiryo, "Helvetica Neue", Arial, "Hiragino Kaku Gothic ProN", "Hiragino Sans", sans-serif`}
 					>
-						{SITE_TITLE.base}: {SITE_TITLE.smash}
+						{SITE_TITLE.base} {SITE_TITLE.smash}
 					</Heading>
-					<Text size='sm'>スマブラアカウントの間で最近話題の投稿集</Text>
+					<Heading as='h2' size='sm' lineHeight={1.5} fontWeight={'normal'}>
+						<span style={{ display: 'inline-block' }}>{SITE_DESCRIPTION.smash1}</span>
+						<span style={{ display: 'inline-block' }}>{SITE_DESCRIPTION.smash2}</span>
+					</Heading>
 				</VStack>
 			</Container>
 			<Suspense fallback={<div>Loading...</div>}>
