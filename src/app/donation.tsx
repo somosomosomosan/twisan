@@ -22,7 +22,7 @@ import TouchableHighlight from '../components/utilCompos/TouchableHighlight';
 import { useShowToast } from '../components/utilCompos/useShowToast';
 import copyToClipboard from '../utilfuncs/copyToClipboard';
 
-const MAIL_ADDRESS = 'nagekonapps@gmail.com';
+const MAIL_ADDRESS = 'twicrawlerweb@gmail.com';
 const AMAZON_ADDRESS = 'https://amzn.to/458baHx';
 export default function PageDonation() {
 	const { onShowToast } = useShowToast();
