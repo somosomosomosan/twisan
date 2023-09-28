@@ -6,6 +6,7 @@ import {
 	Heading,
 	Image,
 	Link,
+	LinkOverlay,
 	ListItem,
 	Stack,
 	Text,
@@ -23,14 +24,12 @@ import copyToClipboard from '../utilfuncs/copyToClipboard';
 
 const MAIL_ADDRESS = 'nagekonapps@gmail.com';
 const AMAZON_ADDRESS = 'https://amzn.to/458baHx';
-const TO_THIS_ADDRESS = `メールアドレスは ${MAIL_ADDRESS} 宛にお願いいたします。`;
 export default function PageDonation() {
 	const { onShowToast } = useShowToast();
 	const onCopy = useCallback(() => {
 		copyToClipboard(MAIL_ADDRESS);
 		onShowToast(`コピーしました:\n${MAIL_ADDRESS}`);
 	}, []);
-	const onToAmazon = useCallback(() => window.open(AMAZON_ADDRESS), []);
 	return (
 		<div>
 			<Helmet>
@@ -48,33 +47,31 @@ export default function PageDonation() {
 					<Heading as='h1' size='lg' noOfLines={1}>
 						運営支援
 					</Heading>
-					<TouchableHighlight
-						boxProps={{
-							onClick: onToAmazon,
-						}}
-					>
-						<Card
-							direction={{ base: 'column', sm: 'row' }}
-							overflow='hidden'
-							variant='outline'
-							background={'transparent'}
-						>
-							<Image
-								objectFit='cover'
-								maxW={{ base: '100%', sm: '200px' }}
-								src='https://i.imgur.com/2NvFmsD.png'
-								alt='Amazon Logo'
-							/>
+					<LinkOverlay href={AMAZON_ADDRESS} target='_blank'>
+						<TouchableHighlight>
+							<Card
+								direction={{ base: 'column', sm: 'row' }}
+								overflow='hidden'
+								variant='outline'
+								background={'transparent'}
+							>
+								<Image
+									objectFit='cover'
+									maxW={{ base: '100%', sm: '200px' }}
+									src='https://i.imgur.com/2NvFmsD.png'
+									alt='Amazon Logo'
+								/>
 
-							<Stack>
-								<CardBody>
-									<Heading size='md'>Amazonギフト券 Eメールタイプ</Heading>
+								<Stack>
+									<CardBody>
+										<Heading size='md'>Amazonギフト券 Eメールタイプ</Heading>
 
-									<Text py='2'>Amazonギフト券 Eメールタイプを贈る</Text>
-								</CardBody>
-							</Stack>
-						</Card>
-					</TouchableHighlight>
+										<Text py='2'>Amazonギフト券 Eメールタイプを贈る</Text>
+									</CardBody>
+								</Stack>
+							</Card>
+						</TouchableHighlight>
+					</LinkOverlay>
 
 					<Text>上記のリンクから Amazon ギフト券 E メールタイプを使ってご支援いただくことができます。</Text>
 					<UnorderedList>
