@@ -6,7 +6,6 @@ import {
 	Heading,
 	Image,
 	Link,
-	LinkOverlay,
 	ListItem,
 	Stack,
 	Text,
@@ -47,8 +46,8 @@ export default function PageDonation() {
 					<Heading as='h1' size='lg' noOfLines={1}>
 						運営支援
 					</Heading>
-					<LinkOverlay href={AMAZON_ADDRESS} target='_blank'>
-						<TouchableHighlight>
+					<TouchableHighlight>
+						<Link href={AMAZON_ADDRESS} target='_blank'>
 							<Card
 								direction={{ base: 'column', sm: 'row' }}
 								overflow='hidden'
@@ -70,8 +69,8 @@ export default function PageDonation() {
 									</CardBody>
 								</Stack>
 							</Card>
-						</TouchableHighlight>
-					</LinkOverlay>
+						</Link>
+					</TouchableHighlight>
 
 					<Text>上記のリンクから Amazon ギフト券 E メールタイプを使ってご支援いただくことができます。</Text>
 					<UnorderedList>
