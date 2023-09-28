@@ -50,10 +50,10 @@ type P_base = P & {
 const Base = (props: P_base) => {
 	const count = valueFloor(props.count);
 	return (
-		<Flex className='subText' direction={'row'} marginRight={4} alignItems={'baseline'}>
-			<Flex direction={'row'} alignItems={'baseline'} width={'24px'} height={'32px'} position={'relative'} top={'2px'}>
+		<Flex className='subText' direction={'row'} marginRight={4} alignItems={'baseline'} height={'32px'}>
+			<Box width={'24px'} position={'relative'} top={'2px'}>
 				{props.children}
-			</Flex>
+			</Box>
 			<Box as={'span'} fontSize={`${SIZE_TEXT_S}px`} marginLeft={'4px'}>
 				{count}
 			</Box>

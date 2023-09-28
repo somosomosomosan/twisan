@@ -3,9 +3,10 @@ import TagManager from 'react-gtm-module';
 import { Helmet } from 'react-helmet-async';
 import { Link, Route, Routes } from 'react-router-dom';
 
-import '../../App.css';
-import { SITE_TITLE } from '../../consts';
-import PageSmash from '../categories/smash/page';
+import './../App.css';
+import { SITE_TITLE } from './../consts';
+import PageSmash from './categories/smash';
+import PageDonation from './donation';
 
 export default function PageHome() {
 	//console.log({ PUBLIC_URL: process.env.PUBLIC_URL });
@@ -22,6 +23,7 @@ export default function PageHome() {
 		<div className='App'>
 			<Routes>
 				<Route path='/' element={<Content />} />
+				<Route path='/donation' element={<PageDonation />} />
 				<Route path='/smash' element={<PageSmash />} />
 			</Routes>
 		</div>

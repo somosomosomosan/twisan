@@ -1,8 +1,8 @@
-import { Modal, ModalBody, ModalContent, ModalOverlay, useToast } from '@chakra-ui/react';
-import { useCallback } from 'react';
+import { Modal, ModalBody, ModalContent, ModalOverlay } from '@chakra-ui/react';
 import copyToClipboard from '../../utilfuncs/copyToClipboard';
 import { generateTweetUrl } from '../../utilfuncs/generateTweetUrl';
 import DividedList from '../utilCompos/DividedList';
+import { useShowToast } from '../utilCompos/useShowToast';
 import { createNamesAndMainTextAndUrl, t_activatedTweetData } from './TweetComponentList';
 
 type p = {
@@ -24,20 +24,6 @@ export function TweetOptionModal(props: p) {
 			</ModalContent>
 		</Modal>
 	);
-}
-
-function useShowToast() {
-	const toast = useToast();
-	const onShowToast = useCallback((description: string) => {
-		toast({
-			//title: 'Account created.',
-			description: description,
-			status: 'success',
-			duration: 1500,
-			isClosable: true,
-		});
-	}, []);
-	return { onShowToast };
 }
 
 function generateListItemsData(props: p & { onShowToast: (description: string) => void }) {

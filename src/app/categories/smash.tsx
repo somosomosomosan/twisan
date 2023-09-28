@@ -8,6 +8,7 @@ import {
 	Center,
 	Container,
 	Flex,
+	HStack,
 	Heading,
 	Hide,
 	IconButton,
@@ -37,23 +38,24 @@ import * as Rb from 'rambda';
 import { ChangeEvent, Suspense, useCallback, useState } from 'react';
 import { Helmet } from 'react-helmet-async';
 import { FaCheck, FaChevronDown, FaMoon, FaSun } from 'react-icons/fa';
+import { HiOutlineCurrencyYen } from 'react-icons/hi2';
 import { MdOutlineTipsAndUpdates } from 'react-icons/md';
-import { useSearchParams } from 'react-router-dom';
-import { COLOR_BORDER, COLOR_LINK } from '../../../components/TweetComponent/consts';
-import { t_dbAuthor, t_dbTweetDataParsed, t_dbTweetScores } from '../../../components/TweetComponent/types';
-import TweetComponentList from '../../../components/TweetList/TweetComponentList';
-import { t_tweetViewStyleMode } from '../../../components/TweetList/TweetListItem';
-import { t_blockedAccount } from '../../../components/TweetList/types';
-import { DETECT_STOPPING_SCRAPING_HOUR, READS_SAVE_DAYS, SITE_DESCRIPTION, SITE_TITLE } from '../../../consts';
-import { getRankingData2, getRankingHistories, t_rankingHistory } from '../../../utilfuncs/getRankingData';
+import { Link as ReactRouterLink, useSearchParams } from 'react-router-dom';
+import { COLOR_BORDER, COLOR_LINK } from './../../components/TweetComponent/consts';
+import { t_dbAuthor, t_dbTweetDataParsed, t_dbTweetScores } from './../../components/TweetComponent/types';
+import TweetComponentList from './../../components/TweetList/TweetComponentList';
+import { t_tweetViewStyleMode } from './../../components/TweetList/TweetListItem';
+import { t_blockedAccount } from './../../components/TweetList/types';
+import { DETECT_STOPPING_SCRAPING_HOUR, READS_SAVE_DAYS, SITE_DESCRIPTION, SITE_TITLE } from './../../consts';
+import { getRankingData2, getRankingHistories, t_rankingHistory } from './../../utilfuncs/getRankingData';
 import {
 	loadBlockedAccountsFromStorage,
 	loadReadsFromStorage,
 	loadTweetViewStyleMode,
 	saveReadsToStorage,
 	saveTweetViewStyleMode,
-} from '../../../utilfuncs/localStorages';
-import { removeReadsNDaysBeforeThenSave, t_reads } from '../../../utilfuncs/reads';
+} from './../../utilfuncs/localStorages';
+import { removeReadsNDaysBeforeThenSave, t_reads } from './../../utilfuncs/reads';
 
 const CATEGORY_NAME = 'smash';
 
@@ -239,7 +241,10 @@ function Content(
 								window.location.reload();
 							}}
 						/>
-						<TipsForMobile />
+						<HStack>
+							<TipsForMobile />
+							<DonationForMobile />
+						</HStack>
 					</Hide>
 				</VStack>
 			</Container>
@@ -270,6 +275,7 @@ function Content(
 						>
 							<VStack spacing={SPACE_V_STACK}>
 								<TipsForPc />
+								<DonationForPc />
 								<LinksForPc />
 							</VStack>
 							{/*
@@ -401,6 +407,48 @@ function TipsForPc() {
 	);
 }
 
+function DonationForPc() {
+	return (
+		<Card textAlign={'left'} marginLeft={'24px'} width={'100%'} variant={'outline'}>
+			<CardBody>
+				<VStack spacing={SPACE_V_STACK} fontSize={12} align={'flex-start'}>
+					<Flex
+						direction={'row'}
+						marginRight={4}
+						alignItems={'center'}
+						color={COLOR_LINK}
+						as={ReactRouterLink}
+						to='/donation'
+					>
+						<Box marginRight={1}>
+							<HiOutlineCurrencyYen size={15} />
+						</Box>
+
+						<Text>運営を支援</Text>
+					</Flex>
+				</VStack>
+			</CardBody>
+		</Card>
+	);
+}
+
+function DonationForMobile() {
+	return (
+		<Box>
+			<Button
+				leftIcon={<HiOutlineCurrencyYen />}
+				variant='outline'
+				colorScheme='yellow'
+				size='xs'
+				as={ReactRouterLink}
+				to='/donation'
+			>
+				運営支援
+			</Button>
+		</Box>
+	);
+}
+
 function LinksForPc() {
 	return (
 		<Card textAlign={'left'} marginLeft={'24px'} width={'100%'} variant={'outline'}>
@@ -421,7 +469,7 @@ function TipsForMobile() {
 
 	return (
 		<Box>
-			<Button leftIcon={<MdOutlineTipsAndUpdates />} variant='outline' colorScheme='yellow' size='xs' onClick={onOpen}>
+			<Button leftIcon={<MdOutlineTipsAndUpdates />} variant='outline' colorScheme='orange' size='xs' onClick={onOpen}>
 				Tips
 			</Button>
 			<Modal onClose={onClose} isOpen={isOpen} isCentered>

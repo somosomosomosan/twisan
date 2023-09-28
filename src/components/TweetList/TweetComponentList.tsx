@@ -9,7 +9,7 @@ import Lightbox from 'yet-another-react-lightbox';
 import Video from 'yet-another-react-lightbox/plugins/video';
 import Zoom from 'yet-another-react-lightbox/plugins/zoom';
 import 'yet-another-react-lightbox/styles.css';
-import { t_storagedData } from '../../app/categories/smash/page';
+import { t_storagedData } from '../../app/categories/smash';
 import { flattenUniq, uniqForShortArray } from '../../utilfuncs/array';
 import { addReadsToStorage, saveBlockedAccounts } from '../../utilfuncs/localStorages';
 import { intoYyyy_mm_dd, parseYyyy_mm_dd, t_reads } from '../../utilfuncs/reads';

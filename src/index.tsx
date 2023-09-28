@@ -4,7 +4,7 @@ import React from 'react';
 import ReactDOM from 'react-dom/client';
 import { HelmetProvider } from 'react-helmet-async';
 import { BrowserRouter } from 'react-router-dom';
-import PageHome from './app/home/page';
+import PageHome from './app/home';
 import './index.css';
 import theme from './theme';
 
