@@ -75,7 +75,7 @@ export default function PageDonation() {
 					<Text>上記のリンクから Amazon ギフト券 E メールタイプを使ってご支援いただくことができます。</Text>
 					<UnorderedList>
 						<ListItem textAlign={'left'}>
-							<Text>
+							<Text onClick={onCopy} cursor={'pointer'}>
 								『受取人のEメールアドレス』は
 								<Box
 									display={'inline'}
@@ -86,18 +86,14 @@ export default function PageDonation() {
 									marginRight={'0.25rem'}
 								>
 									{MAIL_ADDRESS}
-									<FaClipboard
-										size='12px'
-										style={{ display: 'inline', marginLeft: '0.25rem', cursor: 'pointer' }}
-										onClick={onCopy}
-									/>
+									<FaClipboard size='12px' style={{ display: 'inline', marginLeft: '0.25rem' }} />
 								</Box>
 								でお願いいたします。
 							</Text>
 						</ListItem>
 						<ListItem textAlign={'left'}>メッセージは空でも問題ございません。</ListItem>
 					</UnorderedList>
-					<Text>実は家のPCをつけっぱなしにして稼働させてまして。</Text>
+					<Text>家のPCをつけっぱなしにして稼働させてまして、これ。</Text>
 					<Text color={COLOR_SUBTEXT}>Amazonのアソシエイトとして、当サイトは適格販売により収入を得ています。</Text>
 					<Link color={COLOR_LINK} as={ReactRouterLink} to='/smash'>
 						戻る
