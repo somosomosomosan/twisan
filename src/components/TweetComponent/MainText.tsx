@@ -144,12 +144,24 @@ function addUrl(text: string | ReactNode[], urls: t_urls[]): string | ReactNode[
 	}, text);
 	*/
 }
+
 function addHashtag(text: string | ReactNode[]) {
-	return reactStringReplace(text, /[＃#]{1}(\S+)/gu, (match, i) => (
-		<span css={styles.textEntities} key={match + randomNum()}>
-			#{match}
-		</span>
-	));
+	//#の前の文字が行頭・空白文字・記号（絵文字含む）であればハッシュタグ判定。ただし「・」は除く。
+	const pres = ['^', '\\s', '[ -/:-@\\[-~]', '[！-／：-＠［-｀｛-～、-〜”’・]'];
+	var temp = text;
+
+	//reduceは型問題で使えない
+	for (let index = 0; index < pres.length; index++) {
+		const reg = new RegExp(pres[index] + '[＃#]{1}(\\S+)', 'gu');
+		temp = reactStringReplace(temp, reg, (match, i) => (
+			<span css={styles.textEntities} key={match + randomNum()}>
+				{' '}
+				#{match}
+			</span>
+		));
+	}
+
+	return temp;
 	/*
 	const r = text.replace(
 		/((?:^|\s|\p{Emoji_Modifier_Base}\p{Emoji_Modifier}?|\p{Emoji_Presentation}|\p{Emoji}\uFE0F))[＃#]{1}(\S+)/gu,
