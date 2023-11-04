@@ -17,7 +17,7 @@ import { useCallback } from 'react';
 import { Helmet } from 'react-helmet-async';
 import { FaClipboard } from 'react-icons/fa';
 import { Link as ReactRouterLink } from 'react-router-dom';
-import { COLOR_LINK, COLOR_SUBTEXT } from '../components/TweetComponent/consts';
+import { COLOR_LINK, COLOR_SUBTEXT } from '../components/tweetComponents/consts';
 import TouchableHighlight from '../components/utilCompos/TouchableHighlight';
 import { useShowToast } from '../components/utilCompos/useShowToast';
 import copyToClipboard from '../utilfuncs/copyToClipboard';

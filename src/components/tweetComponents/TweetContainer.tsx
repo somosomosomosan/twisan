@@ -1,7 +1,7 @@
 import { Box, Flex, useColorModeValue } from '@chakra-ui/react';
 import { PATH_ASSETS } from '../../consts';
 import { generateTweetUrl } from '../../utilfuncs/generateTweetUrl';
-import { DUMMY_TWEET } from '../TweetList/TweetComponentList';
+import { DUMMY_TWEET } from '../tweetListComponents/TweetComponentList';
 import Avatar from './Avatar';
 import CardLink from './CardLink';
 import CreatedAt from './CreatedAt';

@@ -1,6 +1,6 @@
 import { Flex, Text } from '@chakra-ui/react';
 import { FaAward } from 'react-icons/fa';
-import { SIZE_TEXT_S, SIZE_TEXT_XS } from '../TweetComponent/consts';
+import { SIZE_TEXT_S, SIZE_TEXT_XS } from '../tweetComponents/consts';
 
 export default function Rank(props: { rank: number }) {
 	return (

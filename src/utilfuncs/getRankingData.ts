@@ -1,4 +1,4 @@
-import { t_dbAuthor, t_dbTweetDataParsed, t_dbTweetScores } from '../components/TweetComponent/types';
+import { t_dbAuthor, t_dbTweetDataParsed, t_dbTweetScores } from '../components/tweetComponents/types';
 import { PATH_RANKING_DATA } from '../consts';
 
 export type t_dataRanking = {

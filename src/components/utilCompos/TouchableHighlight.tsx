@@ -1,5 +1,5 @@
 import { Box, useColorMode } from '@chakra-ui/react';
-import { COLOR_BG_IN_DARKMODE } from '../TweetComponent/consts';
+import { COLOR_BG_IN_DARKMODE } from '../tweetComponents/consts';
 
 export default function TouchableHighlight(props: {
 	children: React.ReactNode;

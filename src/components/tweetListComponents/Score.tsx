@@ -1,5 +1,5 @@
 import { Flex, Text } from '@chakra-ui/react';
-import { SIZE_TEXT_XS } from '../TweetComponent/consts';
+import { SIZE_TEXT_XS } from '../tweetComponents/consts';
 
 export default function Score(props: { score: number }) {
 	return (

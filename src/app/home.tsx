@@ -5,7 +5,7 @@ import { Link, Route, Routes } from 'react-router-dom';
 
 import './../App.css';
 import { SITE_TITLE } from './../consts';
-import PageSmash from './categories/smash';
+import CategorySmash from './categories/CategorySmash';
 import PageDonation from './donation';
 
 export default function PageHome() {
@@ -24,7 +24,7 @@ export default function PageHome() {
 			<Routes>
 				<Route path='/' element={<Content />} />
 				<Route path='/donation' element={<PageDonation />} />
-				<Route path='/smash' element={<PageSmash />} />
+				<Route path='/smash' element={<CategorySmash />} />
 			</Routes>
 		</div>
 	);

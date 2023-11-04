@@ -1,5 +1,5 @@
-import { t_tweetViewStyleMode } from '../components/TweetList/TweetListItem';
-import { t_blockedAccount } from '../components/TweetList/types';
+import { t_tweetViewStyleMode } from '../components/tweetListComponents/TweetListItem';
+import { t_blockedAccount } from '../components/tweetListComponents/types';
 import { fromNullable } from './monads';
 import { t_reads } from './reads';
 
