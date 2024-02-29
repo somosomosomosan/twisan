@@ -48,7 +48,7 @@ export function MainContentOfCategiry(
 					<Box>
 						<Text className='subText'>集計日時: {format(props.finishedScrapingDate, 'HH:mm · yyyy/MM/dd')}</Text>
 						<Text className='subText' fontSize={'sm'}>
-							1時間～1時間半毎に集計努力
+							2時間～2時間半毎に集計努力
 						</Text>
 						{props.isLooksLikeStoppingScraping && (
 							<Alert status='error'>
