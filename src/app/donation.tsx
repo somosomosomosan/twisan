@@ -99,12 +99,7 @@ export default function PageDonation() {
 						</UnorderedList>
 					</Section>
 
-					<Section title={'Amazonでお買い物'}>
-						<Text>Amazon でお買い物するとき、以下のリンクから購入して頂くと、私に少しお金が入ります。</Text>
-						<Link color={COLOR_LINK} href={AMAZON_HOME_ADDRESS} target='_blank'>
-							Amazon | 本, ファッション, 家電から食品まで | アマゾン
-						</Link>
-					</Section>
+					{/* <Affi /> */}
 
 					<Divider />
 
@@ -127,5 +122,15 @@ function Section(props: { title: string; children: React.ReactNode }) {
 			</Heading>
 			{props.children}
 		</VStack>
+	);
+}
+function Affi() {
+	return (
+		<Section title={'Amazonでお買い物'}>
+			<Text>Amazon でお買い物するとき、以下のリンクから購入して頂くと、私に少しお金が入ります。</Text>
+			<Link color={COLOR_LINK} href={AMAZON_HOME_ADDRESS} target='_blank'>
+				Amazon | 本, ファッション, 家電から食品まで | アマゾン
+			</Link>
+		</Section>
 	);
 }
