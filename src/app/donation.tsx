@@ -17,7 +17,7 @@ import { useCallback } from 'react';
 import { Helmet } from 'react-helmet-async';
 import { FaClipboard } from 'react-icons/fa';
 import { Link as ReactRouterLink } from 'react-router-dom';
-import { COLOR_LINK, COLOR_SUBTEXT } from '../components/tweetComponents/consts';
+import { COLOR_LINK } from '../components/tweetComponents/consts';
 import TouchableHighlight from '../components/utilCompos/TouchableHighlight';
 import { useShowToast } from '../components/utilCompos/useShowToast';
 import copyToClipboard from '../utilfuncs/copyToClipboard';
@@ -104,7 +104,7 @@ export default function PageDonation() {
 					<Divider />
 
 					<Text>家のPCをつけっぱなしにして稼働させてまして、これ。</Text>
-					<Text color={COLOR_SUBTEXT}>Amazonのアソシエイトとして、当サイトは適格販売により収入を得ています。</Text>
+					{/*　<Text color={COLOR_SUBTEXT}>Amazonのアソシエイトとして、当サイトは適格販売により収入を得ています。</Text>　*/}
 					<Link color={COLOR_LINK} as={ReactRouterLink} to='/smash'>
 						戻る
 					</Link>
