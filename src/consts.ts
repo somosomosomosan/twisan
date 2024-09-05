@@ -1,4 +1,4 @@
-import { t_categoryInfo } from './app/categories/types';
+import { t_categoryInfo } from './types';
 
 //ローカルなら無（''） github pagesスラッシュから始まる 例：/twisan
 const REPO_NAME = process.env.PUBLIC_URL;
@@ -15,9 +15,4 @@ export const CATEGORY_INFO_SMASH: t_categoryInfo = {
 export const SITE_TITLE = {
 	base: '', //●● Global Rankings
 	smash: 'スマブラ', //スマブラ
-};
-
-export const SITE_DESCRIPTION = {
-	smash1: 'X(Twitter)のスマブラアカウントの間で',
-	smash2: '最近話題の投稿集',
 };

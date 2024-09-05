@@ -1,21 +1,21 @@
 import { ChakraProvider } from '@chakra-ui/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import React from 'react';
-import ReactDOM from 'react-dom/client';
+import { createRoot } from 'react-dom/client';
 import { HelmetProvider } from 'react-helmet-async';
 import { BrowserRouter } from 'react-router-dom';
-import PageHome from './app/home';
+import RouterRoute from './app/routers/RouterRoute';
 import './index.css';
 import theme from './theme';
 
-const root = ReactDOM.createRoot(document.getElementById('root') as HTMLElement);
+const root = createRoot(document.getElementById('root') as HTMLElement);
 const queryClient = new QueryClient({
 	defaultOptions: {
 		queries: {
 			suspense: true,
 			refetchOnWindowFocus: false,
-			cacheTime: 1000 * 60 * 10, //キャッシュ破棄時間
-			staleTime: 1000 * 60 * 5, //キャッシュ流用時間 5分
+			cacheTime: Infinity, //キャッシュ破棄時間
+			staleTime: Infinity, //キャッシュ流用時間
 		},
 	},
 });
@@ -26,7 +26,7 @@ root.render(
 			<ChakraProvider theme={theme}>
 				<QueryClientProvider client={queryClient}>
 					<HelmetProvider>
-						<PageHome />
+						<RouterRoute />
 					</HelmetProvider>
 				</QueryClientProvider>
 			</ChakraProvider>

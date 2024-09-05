@@ -1,6 +1,6 @@
 import { extendTheme } from '@chakra-ui/react';
 import { mode } from '@chakra-ui/theme-tools';
-import { COLOR_LIGHTBLACK, COLOR_SUBTEXT, COLOR_SUBTEXT_IN_DARKMODE } from './components/tweetComponents/consts';
+import { COLOR_LIGHTBLACK, COLOR_SUBTEXT, COLOR_SUBTEXT_IN_DARKMODE } from './app/tweet-components/inners/consts';
 const theme = {
 	config: {
 		initialColorMode: 'light',
