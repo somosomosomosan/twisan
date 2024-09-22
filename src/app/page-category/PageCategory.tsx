@@ -2,7 +2,7 @@ import { Container, Heading, VStack } from '@chakra-ui/react';
 import { useQuery } from '@tanstack/react-query';
 import { Suspense } from 'react';
 import { Helmet } from 'react-helmet-async';
-import { Link, useSearchParams } from 'react-router-dom';
+import { useSearchParams } from 'react-router-dom';
 import { SITE_TITLE } from '../../consts';
 import { t_categoryInfo } from '../../types';
 import { getRankingData2, getRankingHistories, t_rankingHistory } from '../util-funcs/getRankingData';
@@ -40,7 +40,6 @@ export default function PageCategory(props: { categoryInfo: t_categoryInfo }) {
 					<Heading as='h2' size='sm' lineHeight={1.5} fontWeight={'normal'}>
 						<span style={{ display: 'inline-block' }}>{description1}</span>
 						<span style={{ display: 'inline-block' }}>{description2}</span>
-						<Link to={'/donation'}>done</Link>
 					</Heading>
 				</VStack>
 			</Container>
