@@ -43,7 +43,7 @@ export function MainContainer(props: {
 					<Box>
 						<Text className='subText'>集計日時: {format(props.finishedScrapingDate, 'HH:mm · yyyy/MM/dd')}</Text>
 						<Text className='subText' fontSize={'sm'}>
-							2時間～2時間半毎に集計努力
+							4時間～4時間半毎に集計努力
 						</Text>
 						{isLooksLikeStoppingScraping && (
 							<Alert status='error'>
